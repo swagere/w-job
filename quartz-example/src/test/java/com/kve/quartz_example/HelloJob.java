@@ -9,13 +9,13 @@ import java.util.Date;
 
 /**
  * @author: hujing39
- * @date: 2022-02-16
+ * @date: 2022-02-16S
  */
 
 @Slf4j
 public class HelloJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.info("HelloJob.execute" + " " + Thread.currentThread().getName());
+        System.out.println(jobExecutionContext.getTrigger() + " " + Thread.currentThread().getName());
     }
 }

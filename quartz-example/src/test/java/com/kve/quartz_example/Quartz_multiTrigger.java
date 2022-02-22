@@ -21,11 +21,13 @@ import static org.quartz.SimpleScheduleBuilder.*;
               // 定义job
               JobDetail job= JobBuilder.newJob(HelloJob.class)
                       .withIdentity("job1", "group1")
+                      .storeDurably() //设置job持久化（当没有trigger与job直接关联时，job默认不保存
                       .build();
 
               // 定义trigger
               Trigger trigger= TriggerBuilder.newTrigger()
                       .withIdentity("trigger1", "group1")
+                      .forJob("job1", "group1")
                       .startNow()
                       .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                               .withIntervalInSeconds(5)
@@ -42,7 +44,8 @@ import static org.quartz.SimpleScheduleBuilder.*;
                       .build();
 
               // 将job和trigger注入scheduler
-              scheduler.scheduleJob(job, trigger);
+              scheduler.addJob(job, false);
+              scheduler.scheduleJob(trigger);
               scheduler.scheduleJob(trigger1);
 
               TimeUnit.SECONDS.sleep(20);

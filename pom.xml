@@ -17,6 +17,7 @@
 
 	<modules>
 		<module>quartz-example</module>
+		<module>xxl-job-example</module>
 	</modules>
 
 	<properties>

@@ -1,13 +1,13 @@
-package com.kve.quartz_example;
+package com.kve.xxlJob_example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class  QuartzExampleApplication {
+public class XxlJobExampleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(QuartzExampleApplication.class, args);
+		SpringApplication.run(XxlJobExampleApplication.class, args);
 	}
 
 }

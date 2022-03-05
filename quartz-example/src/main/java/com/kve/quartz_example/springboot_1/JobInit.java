@@ -1,4 +1,4 @@
-package com.kve.quartz_example.method_1;
+package com.kve.quartz_example.springboot_1;
 
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
  * @date: 2022-02-22
  */
 
-@Component
+//@Component
 public class JobInit {
     @Autowired
     public Scheduler scheduler;
@@ -25,6 +25,7 @@ public class JobInit {
 
         // 定义trigger
         Trigger trigger= TriggerBuilder.newTrigger()
+                .withSchedule(SimpleScheduleBuilder.repeatHourlyForever(5))
                 .startNow()
                 .build();
 

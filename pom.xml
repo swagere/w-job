@@ -18,6 +18,7 @@
 	<modules>
 		<module>quartz-example</module>
 		<module>xxl-job-example</module>
+		<module>wjob-web</module>
 	</modules>
 
 	<properties>

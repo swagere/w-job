@@ -1,4 +1,4 @@
-package com.kve.quartz_example.method_1;
+package com.kve.quartz_example.springboot_1;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

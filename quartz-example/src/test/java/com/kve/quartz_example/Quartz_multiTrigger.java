@@ -14,7 +14,9 @@ import static org.quartz.SimpleScheduleBuilder.*;
 
           try {
               //从Factory中获取Scheduler实例
-              Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+              StdSchedulerFactory stdSchedulerFactory = new StdSchedulerFactory();
+              Scheduler scheduler = stdSchedulerFactory.getScheduler();
+//              Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler(); 官方示例
 
               scheduler.start();
 
@@ -44,7 +46,7 @@ import static org.quartz.SimpleScheduleBuilder.*;
                       .build();
 
               // 将job和trigger注入scheduler
-              scheduler.addJob(job, false);
+              scheduler.addJob(job, false); // job只能注入一次
               scheduler.scheduleJob(trigger);
               scheduler.scheduleJob(trigger1);
 

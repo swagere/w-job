@@ -1,13 +1,9 @@
-package com.kve.quartz_example.method_2;
+package com.kve.quartz_example.springboot_2;
 
-import com.kve.quartz_example.method_1.JobBean;
+import com.kve.quartz_example.springboot_1.JobBean;
 import org.quartz.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 /**
  * springboot 方式二

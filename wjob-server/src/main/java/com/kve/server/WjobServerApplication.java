@@ -1,13 +1,13 @@
-package com.kve.web;
+package com.kve.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WjobWebApplication {
+public class WjobServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(WjobWebApplication.class, args);
+		SpringApplication.run(WjobServerApplication.class, args);
 	}
 
 }

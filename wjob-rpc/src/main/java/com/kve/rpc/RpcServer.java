@@ -7,7 +7,7 @@ public interface RpcServer {
 
     public void start() throws IOException;
 
-    public void Register (Class serverInterface, Class impl);
+    public void register (Class serverInterface, Class impl);
 
     public boolean isRunning();
 

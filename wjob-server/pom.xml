@@ -8,22 +8,17 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>wjob-web</artifactId>
+	<artifactId>wjob-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>wjob-web</name>
+
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
 	<dependencies>
+		<!--springboot-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -37,14 +32,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

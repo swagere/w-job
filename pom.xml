@@ -17,9 +17,10 @@
 
 	<modules>
 		<module>quartz-example</module>
-		<module>xxl-job-example</module>
+		<module>wjob-web</module>
 		<module>wjob-worker</module>
 		<module>wjob-rpc</module>
+		<module>wjob-server</module>
 	</modules>
 
 	<properties>

@@ -1,13 +1,13 @@
-package com.kve.xxlJob_example;
+package com.kve.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class XxlJobExampleApplication {
+class WjobWebApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(XxlJobExampleApplication.class, args);
+		SpringApplication.run(WjobWebApplication.class, args);
 	}
 
 }

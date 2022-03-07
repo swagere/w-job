@@ -19,6 +19,7 @@
 		<module>quartz-example</module>
 		<module>xxl-job-example</module>
 		<module>wjob-server</module>
+		<module>wjob-rpc</module>
 	</modules>
 
 	<properties>

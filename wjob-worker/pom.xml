@@ -40,7 +40,6 @@
 		<dependency>
 			<groupId>com.kve</groupId>
 			<artifactId>wjob-rpc</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

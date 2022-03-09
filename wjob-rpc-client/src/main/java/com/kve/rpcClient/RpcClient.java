@@ -1,4 +1,4 @@
-package com.kve.common.rpc;
+package com.kve.rpcClient;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

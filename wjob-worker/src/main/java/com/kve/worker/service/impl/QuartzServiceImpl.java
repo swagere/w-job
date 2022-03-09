@@ -1,11 +1,9 @@
 package com.kve.worker.service.impl;
 
 import com.kve.common.service.QuartzService;
+import com.kve.rpcServer.RpcServiceAnno;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
  * @author: hujing39
  * @date: 2022-03-07
  */
+@RpcServiceAnno(QuartzService.class)
 @Service
 public class QuartzServiceImpl implements QuartzService {
     @Autowired

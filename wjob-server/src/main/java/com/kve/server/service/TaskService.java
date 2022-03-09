@@ -1,6 +1,6 @@
-package com.kve.web.service;
+package com.kve.server.service;
 
-import com.kve.web.model.TaskInfo;
+import com.kve.server.model.TaskInfo;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
@@ -41,7 +41,6 @@ public class TaskService {
      * @throws Exception
      */
     public void createJob(TaskInfo taskInfo) throws Exception {
-        System.out.println(scheduler);
         Trigger trigger = null;
         switch (taskInfo.getTriggerType()) {
             case "1":

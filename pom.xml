@@ -20,6 +20,8 @@
 		<module>wjob-worker</module>
 		<module>wjob-server</module>
 		<module>wjob-common</module>
+		<module>wjob-rpc-client</module>
+		<module>wjob-rpc-server</module>
 	</modules>
 
 	<properties>
@@ -73,6 +75,18 @@
 			<dependency>
 				<groupId>com.kve</groupId>
 				<artifactId>wjob-common</artifactId>
+				<version>1.0.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.kve</groupId>
+				<artifactId>wjob-rpc-client</artifactId>
+				<version>1.0.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.kve</groupId>
+				<artifactId>wjob-rpc-server</artifactId>
 				<version>1.0.0-SNAPSHOT</version>
 			</dependency>
 		</dependencies>

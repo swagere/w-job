@@ -9,7 +9,6 @@ import java.util.Date;
  * @date: 2022-03-07
  */
 
-
 public class HelloJob implements Job {
     private static int count;
 

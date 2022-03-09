@@ -1,10 +1,7 @@
 package com.kve.worker.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.kve.common.rpc.RpcServer;
-import com.kve.common.rpc.ServiceCenter;
 import com.kve.common.service.QuartzService;
-import com.kve.worker.service.impl.QuartzServiceImpl;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,23 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class WorkerController {
     @Autowired
     private QuartzService quartzService;
-
-    @RequestMapping("/connect")
-    @ResponseBody
-    public void connect() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    RpcServer serviceServer = new ServiceCenter("localhost", 9000);
-                    serviceServer.register(QuartzService.class, QuartzServiceImpl.class);
-                    serviceServer.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
 
     @RequestMapping("/start")
     @ResponseBody

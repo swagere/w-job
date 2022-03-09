@@ -35,6 +35,11 @@
 		<!--RPC-->
 		<dependency>
 			<groupId>com.kve</groupId>
+			<artifactId>wjob-rpc-server</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.kve</groupId>
 			<artifactId>wjob-common</artifactId>
 		</dependency>
 

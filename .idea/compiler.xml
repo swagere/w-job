@@ -11,6 +11,8 @@
         <module name="wjob-worker" />
         <module name="wjob-common" />
         <module name="quartz-example" />
+        <module name="wjob-rpc-server" />
+        <module name="wjob-rpc-client" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -22,6 +24,8 @@
       <module name="quartz-example" options="-parameters" />
       <module name="wjob-common" options="-parameters" />
       <module name="wjob-rpc" options="-parameters" />
+      <module name="wjob-rpc-client" options="-parameters" />
+      <module name="wjob-rpc-server" options="-parameters" />
       <module name="wjob-server" options="-parameters" />
       <module name="wjob-worker" options="-parameters" />
     </option>

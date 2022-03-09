@@ -2,24 +2,27 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="wjob-web" />
-        <module name="wjob-rpc" />
         <module name="wjob-server" />
         <module name="wjob-worker" />
+        <module name="wjob-common" />
         <module name="quartz-example" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="wjob-rpc" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="quartz-example" options="-parameters" />
+      <module name="wjob-common" options="-parameters" />
       <module name="wjob-rpc" options="-parameters" />
       <module name="wjob-server" options="-parameters" />
-      <module name="wjob-web" options="-parameters" />
       <module name="wjob-worker" options="-parameters" />
     </option>
   </component>

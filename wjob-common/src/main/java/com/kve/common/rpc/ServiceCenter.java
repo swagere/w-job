@@ -14,11 +14,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * PRC服务端
+ * RPC服务端
  * @author: hujing39
  * @date: 2022-03-07
  */
-@Component
+
 public class ServiceCenter implements RpcServer {
     private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private static final HashMap<String, Object> serviceRegistry = new HashMap<String, Object>();
@@ -99,7 +99,6 @@ public class ServiceCenter implements RpcServer {
                 Class<?> clzz = Class.forName(serviceName);
                 Method method = clzz.getMethod(methodName, parameterTypes);
                 Object result = method.invoke(serviceClass, arguments); //执行方法
-
 
                 //将执行结果反序列化 通过socket发送给客户端
                 output = new ObjectOutputStream(client.getOutputStream());

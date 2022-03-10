@@ -21,12 +21,14 @@ import java.util.concurrent.Executors;
 @Component
 public class ServiceCenter implements RpcServer {
     private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    private static final HashMap<String, Class> serviceRegistry = new HashMap<String, Class>();
+    private static final HashMap<String, Object> serviceRegistry = new HashMap<String, Object>();
     private static boolean isRunning = false;
     private static int port;
     private static String host;
 
-    public ServiceCenter(String host, int port) {
+    public ServiceCenter() {}
+
+    public void set(String host, int port) {
         ServiceCenter.port = port;
         ServiceCenter.host = host;
     }
@@ -54,7 +56,9 @@ public class ServiceCenter implements RpcServer {
 
     @Override
     public void register(Class serverInterface, Class impl) {
-        serviceRegistry.put(serverInterface.getName(), impl);
+        String className = serverInterface.getName();
+        //拿到spring管理的ApplicationContext中的类
+        serviceRegistry.put(className, SpringContextHolder.getApplicationContext().getBean(impl));
     }
 
     @Override
@@ -86,13 +90,15 @@ public class ServiceCenter implements RpcServer {
                 String methodName = input.readUTF();
                 Class<?>[] parameterTypes = (Class<?>[]) input.readObject();
                 Object[] arguments = (Object[]) input.readObject();
-                Class serviceClass = serviceRegistry.get(serviceName);
+                Object serviceClass = serviceRegistry.get(serviceName);
                 System.out.println(serviceClass);
                 if (serviceClass == null) {
                     throw new ClassNotFoundException(serviceName + "not found");
                 }
-                Method method = serviceClass.getMethod(methodName, parameterTypes);
-                Object result = method.invoke(serviceClass.newInstance(), arguments); //执行方法
+
+                Class<?> clzz = Class.forName(serviceName);
+                Method method = clzz.getMethod(methodName, parameterTypes);
+                Object result = method.invoke(serviceClass, arguments); //执行方法
 
 
                 //将执行结果反序列化 通过socket发送给客户端

@@ -15,6 +15,8 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="wjob-rpc" target="1.8" />
+      <module name="wjob-rpc-client" target="1.8" />
+      <module name="wjob-rpc-server" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

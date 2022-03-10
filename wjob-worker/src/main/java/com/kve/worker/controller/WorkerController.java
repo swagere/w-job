@@ -23,6 +23,9 @@ public class WorkerController {
     @Autowired
     private QuartzService quartzService;
 
+    @Autowired
+    ServiceCenter serviceCenter;
+
     @RequestMapping("/connect")
     @ResponseBody
     public void connect() {
@@ -30,9 +33,9 @@ public class WorkerController {
             @Override
             public void run() {
                 try {
-                    RpcServer serviceServer = new ServiceCenter("localhost", 9000);
-                    serviceServer.register(QuartzService.class, QuartzServiceImpl.class);
-                    serviceServer.start();
+                    serviceCenter.set("localhost", 9000);
+                    serviceCenter.register(QuartzService.class, QuartzServiceImpl.class);
+                    serviceCenter.start();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

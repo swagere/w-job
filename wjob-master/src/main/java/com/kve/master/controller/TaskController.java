@@ -1,11 +1,11 @@
-package com.kve.server.controller;
+package com.kve.master.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.kve.common.rpc.RpcClient;
 import com.kve.common.service.QuartzService;
-import com.kve.server.service.TaskService;
-import com.kve.server.util.PropertyRead;
-import com.kve.server.model.TaskInfo;
+import com.kve.master.service.TaskService;
+import com.kve.master.util.PropertyRead;
+import com.kve.master.model.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,4 +1,4 @@
-package com.kve.server.util;
+package com.kve.master.util;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;

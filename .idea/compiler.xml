@@ -7,10 +7,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="wjob-server" />
-        <module name="wjob-worker" />
         <module name="wjob-common" />
+        <module name="wjob-worker" />
         <module name="quartz-example" />
+        <module name="wjob-master" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -23,8 +23,8 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="quartz-example" options="-parameters" />
       <module name="wjob-common" options="-parameters" />
+      <module name="wjob-master" options="-parameters" />
       <module name="wjob-rpc" options="-parameters" />
-      <module name="wjob-server" options="-parameters" />
       <module name="wjob-worker" options="-parameters" />
     </option>
   </component>

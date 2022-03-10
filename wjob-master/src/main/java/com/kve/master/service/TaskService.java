@@ -1,6 +1,6 @@
-package com.kve.server.service;
+package com.kve.master.service;
 
-import com.kve.server.model.TaskInfo;
+import com.kve.master.model.TaskInfo;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;

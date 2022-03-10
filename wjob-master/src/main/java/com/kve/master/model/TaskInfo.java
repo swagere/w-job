@@ -1,4 +1,4 @@
-package com.kve.server.model;
+package com.kve.master.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

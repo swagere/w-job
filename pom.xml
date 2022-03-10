@@ -17,8 +17,8 @@
 
 	<modules>
 		<module>quartz-example</module>
-		<module>wjob-client</module>
-		<module>wjob-server</module>
+		<module>wjob-worker</module>
+		<module>wjob-master</module>
 		<module>wjob-common</module>
 	</modules>
 

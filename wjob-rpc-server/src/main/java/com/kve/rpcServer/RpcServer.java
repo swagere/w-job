@@ -39,19 +39,34 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
      */
     @Override
     public void afterPropertiesSet() throws Exception {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ServerSocket server = null;
+                try {
+                    server = new ServerSocket();
+                    server.bind(new InetSocketAddress(host, port));
+                    System.out.println("connect server : " + host + ":" + port);
+                    while (true) {
+                        //监听客户端的TCP连接 收到TCP连接后封装成Task 由线程池执行
+                        executor.execute(new ServiceTask(server.accept()));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    if (server != null) {
+                        try {
+                            server.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
-        ServerSocket server = new ServerSocket();
-        server.bind(new InetSocketAddress(host, port));
-        System.out.println("connect server : " + host + ":" + port);
-        try {
-            while (true) {
-                //监听客户端的TCP连接 收到TCP连接后封装成Task 由线程池执行
-                executor.execute(new ServiceTask(server.accept()));
+                }
             }
-        } finally {
-            server.close();
+        }).start();
 
-        }
     }
 
     /**

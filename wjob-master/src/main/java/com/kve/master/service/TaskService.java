@@ -1,6 +1,6 @@
 package com.kve.master.service;
 
-import com.kve.master.model.TaskInfo;
+import com.kve.master.model.TaskParam;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.impl.matchers.StringMatcher;
@@ -37,18 +37,18 @@ public class TaskService {
      * scheduleType:
      * 1：simpleSchedule
      * 2：cronSchedule
-     * @param taskInfo
+     * @param taskParam
      * @throws Exception
      */
-    public void createJob(TaskInfo taskInfo) throws Exception {
+    public void createJob(TaskParam taskParam) throws Exception {
         System.out.println(scheduler);
         Trigger trigger = null;
-        switch (taskInfo.getTriggerType()) {
+        switch (taskParam.getTriggerType()) {
             case "1":
-                Integer rate = taskInfo.getRate();
-                Integer times = taskInfo.getTimes();
+                Integer rate = taskParam.getRate();
+                Integer times = taskParam.getTimes();
                 trigger = TriggerBuilder.newTrigger()
-                        .withIdentity(taskInfo.getJobName(), taskInfo.getJobGroup())
+                        .withIdentity(taskParam.getJobName(), taskParam.getJobGroup())
                         .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                                 .withIntervalInSeconds(rate)
                                 .withRepeatCount(times))
@@ -56,11 +56,11 @@ public class TaskService {
                 break;
             case "2":
                 String cronExpression = String.format("%s %s %s %s %s %s",
-                        taskInfo.getSecond(), taskInfo.getMinute(), taskInfo.getHour(), taskInfo.getDay(), taskInfo.getMouth(), taskInfo.getWeek());
+                        taskParam.getSecond(), taskParam.getMinute(), taskParam.getHour(), taskParam.getDay(), taskParam.getMouth(), taskParam.getWeek());
                 boolean isValid = CronExpression.isValidExpression(cronExpression);
                 if (!isValid) {
                     trigger = TriggerBuilder.newTrigger()
-                            .withIdentity(taskInfo.getJobName(), taskInfo.getJobGroup())
+                            .withIdentity(taskParam.getJobName(), taskParam.getJobGroup())
                             .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
                             .build();
                 }
@@ -69,9 +69,9 @@ public class TaskService {
                 throw new IOException();
         }
         try {
-            Class jobClass = Class.forName(taskInfo.getJobClassName());
+            Class jobClass = Class.forName(taskParam.getJobClassName());
             JobDetail job = JobBuilder.newJob(jobClass)
-                    .withIdentity(taskInfo.getJobName(), taskInfo.getJobGroup())
+                    .withIdentity(taskParam.getJobName(), taskParam.getJobGroup())
                     .build();
             scheduler.scheduleJob(job, trigger);
         } catch (Exception e) {

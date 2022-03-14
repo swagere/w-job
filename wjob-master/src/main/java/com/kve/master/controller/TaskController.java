@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.kve.common.rpc.RpcClient;
 import com.kve.common.service.QuartzService;
 import com.kve.master.service.TaskService;
-import com.kve.master.util.PropertyRead;
-import com.kve.master.model.TaskInfo;
+import com.kve.common.util.PropertyRead;
+import com.kve.master.model.TaskParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +57,7 @@ public class TaskController {
         return true;
     }
 
-    @RequestMapping("list")
+    @RequestMapping("/list")
     @ResponseBody
     public Boolean toList() {
         List<HashMap<String, Object>> jobList = null;
@@ -73,11 +73,11 @@ public class TaskController {
     }
 
 
-    @RequestMapping("addJob")
+    @RequestMapping("/addJob")
     @ResponseBody
-    public Boolean addJob(@RequestBody TaskInfo taskInfo) {
+    public Boolean addJob(@RequestBody TaskParam taskParam) {
         try {
-            taskService.createJob(taskInfo);
+            taskService.createJob(taskParam);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -90,7 +90,7 @@ public class TaskController {
      * @param str
      * @return
      */
-    @RequestMapping("resumeJob")
+    @RequestMapping("/resumeJob")
     @ResponseBody
     private Boolean resumeJob(@RequestBody String str){
         String jobKey = JSON.parseObject(str).get("jobKey").toString();

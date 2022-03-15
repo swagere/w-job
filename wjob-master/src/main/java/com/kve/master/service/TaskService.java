@@ -1,6 +1,7 @@
 package com.kve.master.service;
 
 import com.alibaba.fastjson.JSON;
+import com.kve.common.bean.HelloJob;
 import com.kve.common.config.ApplicationContextHelper;
 import com.kve.common.config.CommonConfigConstants;
 import com.kve.common.service.QuartzService;
@@ -38,8 +39,6 @@ public class TaskService {
     private Scheduler scheduler;
     @Autowired
     private TaskEntityMapper taskEntityMapper;
-    @Autowired
-    private QuartzService quartzService;
 
     /**
      * 新增任务
@@ -47,12 +46,10 @@ public class TaskService {
      * @throws SchedulerException
      */
     public void saveTask(TaskParam taskParam) throws Exception{
-        taskParam.setAppName(appName);
-
         reentrantLock.lock();
         try {
             //基本参数是否为空校验
-            if (this.checkParamAfterSaveOrUpdate(taskParam)) {
+            if (!checkParamAfterSaveOrUpdate(taskParam)) {
                 throw new Exception("基本参数校验失败");
             }
             //时间表达式校验
@@ -60,7 +57,7 @@ public class TaskService {
                 throw new Exception("时间表达式校验失败");
             }
             //判重(任务组和任务名称相同的)
-            int count = taskEntityMapper.countByJobDetail(taskParam.getAppName(), taskParam.getJobGroup(), taskParam.getJobClass(), taskParam.getJobMethod());
+            int count = taskEntityMapper.countByJobDetail(appName, taskParam.getJobGroup(), taskParam.getJobClass(), taskParam.getJobMethod());
             if (count > 0) {
                 throw new Exception("任务已存在或重复添加");
             }
@@ -68,7 +65,7 @@ public class TaskService {
             TaskEntity taskEntity = buildTaskEntity(taskParam);
 
             //数据持久化
-            taskParam.setJobStatus(1); //未开始状态
+            taskEntity.setJobStatus(1); //未开始状态
             taskEntityMapper.addTask(taskEntity);
             log.info("TaskService>> saveTask end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
         } finally {
@@ -103,23 +100,27 @@ public class TaskService {
             TaskEntity taskEntity = taskEntityMapper.findByAppNameAndId(taskParam.getJobId(), appName);
 
             //校验任务是否已启动
-            if (!taskParam.getJobStatus().equals(1) && isStart(taskEntity)) {
+            if (!taskEntity.getJobStatus().equals(1) && isStart(taskEntity)) {
                 throw new Exception("任务已启动");
             }
 
             //时间表达式校验
-            if (!CronExpression.isValidExpression(taskParam.getCronExpression())) {
+            if (!CronExpression.isValidExpression(taskEntity.getCronExpression())) {
                 throw new Exception("时间表达式校验失败");
             }
 
             //类、方法存在校验
-            checkBeanAndMethodExists(taskParam.getJobClass(), taskParam.getJobMethod(), taskParam.getMethodArgs());
+            checkBeanAndMethodExists(taskEntity.getJobClass(), taskEntity.getJobMethod(), taskEntity.getJobArguments());
 
             //RPC调用
-            quartzService.startJob(taskEntity);
+            RpcService.startJob(taskEntity);
 
             //更新任务状态
-            taskEntityMapper.updateByAppNameAndId(taskEntity.getId(), appName);
+            TaskEntity task = new TaskEntity();
+            task.setId(taskEntity.getId());
+            task.setAppName(appName);
+            taskEntity.setJobStatus(2);
+            taskEntityMapper.updateByAppNameAndId(taskEntity);
 
             log.info("TaskService >> startJob end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
         } finally {
@@ -134,7 +135,7 @@ public class TaskService {
      */
     private TaskEntity buildTaskEntity(TaskParam taskParam) {
         TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setAppName(taskParam.getAppName());
+        taskEntity.setAppName(appName);
         taskEntity.setJobClass(taskParam.getJobClass());
         taskEntity.setJobMethod(taskParam.getJobMethod());
         taskEntity.setJobGroup(taskParam.getJobGroup());

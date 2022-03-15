@@ -15,7 +15,7 @@ public interface TaskEntityMapper {
     /**
      * 更新任务
      */
-    void updateByAppNameAndId(@Param("id") Integer id, @Param("appName") String appName);
+    void updateByAppNameAndId(TaskEntity task);
 
     /**
      * 组和名称相同的任务
@@ -28,7 +28,7 @@ public interface TaskEntityMapper {
     /**
      * 新增task
      */
-    void addTask(@Param("Task") TaskEntity task);
+    void addTask(TaskEntity task);
 
     /**
      * 根据项目与ID查询任务

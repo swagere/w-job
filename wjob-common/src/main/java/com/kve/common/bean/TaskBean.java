@@ -25,7 +25,7 @@ public class TaskBean implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap map = context.getMergedJobDataMap();
         //任务ID
-        Integer jobId = Integer.valueOf(map.getString("jobId"));
+        Integer jobId = (Integer) map.get("jobId");
         //项目名称
         String appName = map.getString("appName");
         //目标类名
@@ -67,7 +67,6 @@ public class TaskBean implements Job {
             throw new JobExecutionException(e);
         }
 
-        // TODO: 2022/3/15 数据库：执行完成后更新-任务最后执行时间
         this.updateAfterRun(jobId, appName);
 
         log.info("[ JobDetail ] >> job end jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{} , time:{} ms"
@@ -79,7 +78,11 @@ public class TaskBean implements Job {
         try {
             TaskEntityMapper taskEntityMapper = ApplicationContextHelper.getApplicationContext().getBean(TaskEntityMapper.class);
             //更新最后执行时间
-            taskEntityMapper.updateByAppNameAndId(jobId, appName);
+            TaskEntity task = new TaskEntity();
+            task.setId(jobId);
+            task.setAppName(appName);
+            task.setLastRunTimestamp(System.currentTimeMillis());
+            taskEntityMapper.updateByAppNameAndId(task);
         } catch (Exception e) {
             log.error("[ JobDetail ] >> job updateAfterRun exception jobId:{} , projectKey:{} ", jobId, appName, e);
         }

@@ -43,7 +43,6 @@ public class ServiceCenter implements RpcServer {
     public void start() throws IOException {
         ServerSocket server = new ServerSocket();
         server.bind(new InetSocketAddress(host, port));
-        System.out.println("connect server");
         try {
             while (true) {
                 //监听客户端的TCP连接 收到TCP连接后封装成Task 由线程池执行
@@ -91,7 +90,6 @@ public class ServiceCenter implements RpcServer {
                 Class<?>[] parameterTypes = (Class<?>[]) input.readObject();
                 Object[] arguments = (Object[]) input.readObject();
                 Object serviceClass = serviceRegistry.get(serviceName);
-                System.out.println(serviceClass);
                 if (serviceClass == null) {
                     throw new ClassNotFoundException(serviceName + "not found");
                 }

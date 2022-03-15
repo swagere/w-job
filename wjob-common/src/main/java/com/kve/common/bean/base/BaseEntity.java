@@ -12,6 +12,11 @@ import java.util.Date;
 @Data
 public class BaseEntity {
     /**
+     * 最后一次运行的时间
+     */
+    private Long LastRunTimestamp;
+
+    /**
      * 创建人ID
      */
     private String createBy;

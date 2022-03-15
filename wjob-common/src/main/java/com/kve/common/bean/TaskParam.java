@@ -19,8 +19,6 @@ import java.util.Map;
 public class TaskParam extends BaseParam {
     private Integer jobId;
 
-    private String appName;
-
     private String jobClass;
 
     private String jobMethod;

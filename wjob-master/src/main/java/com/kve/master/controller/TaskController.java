@@ -37,6 +37,24 @@ public class TaskController {
     }
 
     /**
+     * 启动任务
+     *
+     * @param taskParam
+     * @return
+     */
+    @RequestMapping("/startJob")
+    @ResponseBody
+    public Boolean startJob(@RequestBody TaskParam taskParam) {
+        try {
+            taskService.startJob(taskParam);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 恢复定时任务
      * @param taskParam
      * @return

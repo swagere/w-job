@@ -69,12 +69,16 @@ public class QuartzServiceImpl implements QuartzService {
                     .withSchedule(CronScheduleBuilder.cronSchedule(taskEntity.getCronExpression()))
                     .build();
 
+            //执行任务
             scheduler.scheduleJob(job, trigger);
+            scheduler.start();
         } catch (SchedulerException e) {
             log.info("[ QuartzService ] >> startJob exception triggerName:{},JobGroup:{}", taskEntity.getTriggerName(),
                     taskEntity.getJobGroup(), e);
             throw new Exception("任务启动失败");
         }
+
+        log.info("[ QuartzSchedulerUtil ] >> enable new task end triggerName:{},JobGroup:{}", taskEntity.getTriggerName(), taskEntity.getJobGroup());
     }
 
     /**

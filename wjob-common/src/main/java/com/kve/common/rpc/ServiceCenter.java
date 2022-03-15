@@ -1,6 +1,6 @@
 package com.kve.common.rpc;
 
-import org.springframework.stereotype.Component;
+import com.kve.common.config.ApplicationContextHelper;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -58,7 +58,7 @@ public class ServiceCenter implements RpcServer {
     public void register(Class serverInterface, Class impl) {
         String className = serverInterface.getName();
         //拿到spring管理的ApplicationContext中的类
-        serviceRegistry.put(className, SpringContextHolder.getApplicationContext().getBean(impl));
+        serviceRegistry.put(className, ApplicationContextHelper.getApplicationContext().getBean(impl));
     }
 
     @Override

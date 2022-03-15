@@ -1,6 +1,6 @@
 package com.kve.common.service;
 
-import org.quartz.SchedulerException;
+import com.kve.common.bean.TaskEntity;
 
 /**
  * @author: hujing39
@@ -8,5 +8,6 @@ import org.quartz.SchedulerException;
  */
 
 public interface QuartzService {
-    void resumeJob(String jobKey) throws SchedulerException;
+    void resumeJob(String jobKey);
+    void startJob(TaskEntity taskEntity) throws Exception;
 }

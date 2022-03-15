@@ -12,9 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskParam {
-    private String jobGroup;
-    private String jobName;
+public class Task1 {
+    private String jobGroup;    private String jobName;
     private String jobClassName;
     private String description;
 

@@ -14,6 +14,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="JavaTask" target="1.5" />
       <module name="wjob-rpc" target="1.8" />
       <module name="wjob-rpc-client" target="1.8" />
       <module name="wjob-rpc-server" target="1.8" />
@@ -21,6 +22,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="JavaTask" options="" />
       <module name="quartz-example" options="-parameters" />
       <module name="wjob-common" options="-parameters" />
       <module name="wjob-master" options="-parameters" />

@@ -1,11 +1,12 @@
-package com.kve.common.rpc;
+package com.kve.common.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SpringContextHolder implements ApplicationContextAware {
+public class ApplicationContextHelper implements ApplicationContextAware {
     private static ApplicationContext applicationContext = null;  
   
     /** 
@@ -45,7 +46,7 @@ public class SpringContextHolder implements ApplicationContextAware {
      */  
     @Override  
     public void setApplicationContext(ApplicationContext applicationContext) {
-        SpringContextHolder.applicationContext = applicationContext;  
+        ApplicationContextHelper.applicationContext = applicationContext;
     }  
   
     /** 

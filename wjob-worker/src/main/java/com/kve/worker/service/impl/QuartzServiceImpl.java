@@ -21,22 +21,22 @@ public class QuartzServiceImpl implements QuartzService {
     @Autowired
     private Scheduler scheduler;
 
-    @Override
-    public void resumeJob(String jobKey) {
-        try {
-            System.out.println("执行任务, jobKey : " + jobKey);
-            System.out.println("schedule : " + scheduler);
-            System.out.println("example : " + this.hashCode());
-            String[] keyArray = jobKey.split("\\.");
-            JobKey key = JobKey.jobKey(keyArray[1], keyArray[0]);
-            scheduler.resumeJob(key);
-            scheduler.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
-        }
-
-    }
+//    @Override
+//    public void resumeJob(String jobKey) {
+//        try {
+//            System.out.println("执行任务, jobKey : " + jobKey);
+//            System.out.println("schedule : " + scheduler);
+//            System.out.println("example : " + this.hashCode());
+//            String[] keyArray = jobKey.split("\\.");
+//            JobKey key = JobKey.jobKey(keyArray[1], keyArray[0]);
+//            scheduler.resumeJob(key);
+//            scheduler.start();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println(e.getMessage());
+//        }
+//
+//    }
 
     @Override
     public void startJob(TaskEntity taskEntity) throws Exception{

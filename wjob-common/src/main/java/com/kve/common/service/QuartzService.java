@@ -8,6 +8,6 @@ import com.kve.common.bean.TaskEntity;
  */
 
 public interface QuartzService {
-    void resumeJob(String jobKey);
+//    void resumeJob(String jobKey);
     void startJob(TaskEntity taskEntity) throws Exception;
 }

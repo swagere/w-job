@@ -57,6 +57,7 @@ public class TaskService {
                 throw new Exception("时间表达式校验失败");
             }
             //判重(任务组和任务名称相同的)
+            // TODO: 2022/3/16 appName jobGroup jobClass jobMethod区分是否合理
             int count = taskEntityMapper.countByJobDetail(appName, taskParam.getJobGroup(), taskParam.getJobClass(), taskParam.getJobMethod());
             if (count > 0) {
                 throw new Exception("任务已存在或重复添加");
@@ -75,20 +76,20 @@ public class TaskService {
 
     }
 
-    public void pauseJob(TaskParam taskParam) throws SchedulerException {
-        // TODO: 2022/3/14 数据库更改TaskInfo status设置为2
+//    public void pauseJob(TaskParam taskParam) throws SchedulerException {
+//        // TODO: 2022/3/14 数据库更改TaskInfo status设置为2
+//
+//        JobKey jobKey = new JobKey(taskParam.getJobName(), taskParam.getJobGroup());
+//        scheduler.pauseJob(jobKey);
+//    }
 
-        JobKey jobKey = new JobKey(taskParam.getJobName(), taskParam.getJobGroup());
-        scheduler.pauseJob(jobKey);
-    }
-
-    public void resumeJob(TaskParam taskParam) throws SchedulerException {
-        // TODO: 2022/3/15 数据库更改TaskInfo status设置为3
-
-        // TODO: 2022/3/15 RPC调用 远程开启任务
-        JobKey jobKey = new JobKey(taskParam.getJobName(), taskParam.getJobGroup());
-        scheduler.resumeJob(jobKey);
-    }
+//    public void resumeJob(TaskParam taskParam) throws SchedulerException {
+//        // TODO: 2022/3/15 数据库更改TaskInfo status设置为3
+//
+//        // TODO: 2022/3/15 RPC调用 远程开启任务
+//        JobKey jobKey = new JobKey(taskParam.getJobName(), taskParam.getJobGroup());
+//        scheduler.resumeJob(jobKey);
+//    }
 
     /**
      * 启动任务
@@ -113,6 +114,7 @@ public class TaskService {
             checkBeanAndMethodExists(taskEntity.getJobClass(), taskEntity.getJobMethod(), taskEntity.getJobArguments());
 
             //RPC调用
+            // TODO: 2022/3/16  worker 利用quartz的方法创建job时的数据一致性
             RpcService.startJob(taskEntity);
 
             //更新任务状态

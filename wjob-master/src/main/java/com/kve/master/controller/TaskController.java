@@ -63,7 +63,7 @@ public class TaskController {
     @ResponseBody
     private Boolean resumeJob(@RequestBody TaskParam taskParam){
         try {
-            taskService.resumeJob(taskParam);
+//            taskService.resumeJob(taskParam);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -81,7 +81,7 @@ public class TaskController {
     @ResponseBody
     private Boolean pauseJob(@RequestBody TaskParam taskParam){
         try {
-            taskService.pauseJob(taskParam);
+//            taskService.pauseJob(taskParam);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

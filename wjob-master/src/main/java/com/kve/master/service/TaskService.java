@@ -37,6 +37,7 @@ public class TaskService {
 
     @Autowired
     private Scheduler scheduler;
+
     @Autowired
     private TaskEntityMapper taskEntityMapper;
 
@@ -56,17 +57,11 @@ public class TaskService {
             if (!CronExpression.isValidExpression(taskParam.getCronExpression())) {
                 throw new Exception("时间表达式校验失败");
             }
-            //判重(任务组和任务名称相同的)
-            // TODO: 2022/3/16 appName jobGroup jobClass jobMethod区分是否合理
-            int count = taskEntityMapper.countByJobDetail(appName, taskParam.getJobGroup(), taskParam.getJobClass(), taskParam.getJobMethod());
-            if (count > 0) {
-                throw new Exception("任务已存在或重复添加");
-            }
 
             TaskEntity taskEntity = buildTaskEntity(taskParam);
 
             //数据持久化
-            taskEntity.setJobStatus(1); //未开始状态
+            taskEntity.setJobStatus(1); //创建态
             taskEntityMapper.addTask(taskEntity);
             log.info("TaskService>> saveTask end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
         } finally {
@@ -111,7 +106,7 @@ public class TaskService {
             }
 
             //类、方法存在校验
-            checkBeanAndMethodExists(taskEntity.getJobClass(), taskEntity.getJobMethod(), taskEntity.getJobArguments());
+            checkBeanAndMethodExists(taskEntity.getTargetClass(), taskEntity.getTargetMethod(), taskEntity.getTargetArguments());
 
             //RPC调用
             // TODO: 2022/3/16  worker 利用quartz的方法创建job时的数据一致性
@@ -138,13 +133,13 @@ public class TaskService {
     private TaskEntity buildTaskEntity(TaskParam taskParam) {
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setAppName(appName);
-        taskEntity.setJobClass(taskParam.getJobClass());
-        taskEntity.setJobMethod(taskParam.getJobMethod());
-        taskEntity.setJobGroup(taskParam.getJobGroup());
-        taskEntity.setJobName(taskParam.getJobName());
+        taskEntity.setTargetClass(taskParam.getTargetClass());
+        taskEntity.setTargetClass(taskParam.getTargetClass());
+        taskEntity.setTriggerGroup(taskParam.getTriggerGroup());
+        taskEntity.setTriggerName(taskParam.getTriggerName());
         taskEntity.setCronExpression(taskParam.getCronExpression());
         taskEntity.setDescription(taskParam.getDescription());
-        taskEntity.setJobArguments(taskParam.getMethodArgs());
+        taskEntity.setTargetArguments(taskParam.getTargetArguments());
 
 //        taskEntity.setCreateBy(jobSaveBO.getOperateBy());
 //        taskEntity.setCreateName(jobSaveBO.getOperateName());
@@ -160,16 +155,16 @@ public class TaskService {
         if (StringUtils.isEmpty(taskParam.getCronExpression())) {
             return false;
         }
-        if (StringUtils.isEmpty(taskParam.getJobClass())) {
+        if (StringUtils.isEmpty(taskParam.getTargetClass())) {
             return false;
         }
-        if (StringUtils.isEmpty(taskParam.getJobMethod())) {
+        if (StringUtils.isEmpty(taskParam.getTargetMethod())) {
             return false;
         }
-        if (StringUtils.isEmpty(taskParam.getJobGroup())) {
+        if (StringUtils.isEmpty(taskParam.getTriggerGroup())) {
             return false;
         }
-        if (StringUtils.isEmpty(taskParam.getJobName())) {
+        if (StringUtils.isEmpty(taskParam.getTriggerName())) {
             return false;
         }
 
@@ -181,13 +176,13 @@ public class TaskService {
      */
     public boolean isStart(TaskEntity taskEntity) {
         TriggerKey triggerKey = TriggerKey.triggerKey(taskEntity.getTriggerName(),
-                taskEntity.getJobGroup());
+                taskEntity.getTriggerGroup());
         try {
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
             return (null != trigger);
         } catch (Exception e) {
-            log.info("[ TaskService ] >> isStart exception triggerName:{},JobGroup:{}", taskEntity.getTriggerName(),
-                    taskEntity.getJobGroup(), e);
+            log.info("[ TaskService ] >> isStart exception triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(),
+                    taskEntity.getTriggerGroup(), e);
             return false;
         }
     }
@@ -195,12 +190,12 @@ public class TaskService {
     /**
      * 校验任务类或-方法是否在环境中存在
      */
-    public void checkBeanAndMethodExists(String jobClass, String targetMethod, String methodArgs) throws Exception{
-        if (null == jobClass) {
+    public void checkBeanAndMethodExists(String targetClass, String targetMethod, String methodArgs) throws Exception{
+        if (null == targetClass) {
             throw new Exception("类名为空");
         }
         try {
-            Object jobClassInfo = ApplicationContextHelper.getApplicationContext().getBean(jobClass);
+            Object jobClassInfo = ApplicationContextHelper.getApplicationContext().getBean(targetClass);
             //任务参数
             Object[] jobArs = ParamUtil.getJobArgs(methodArgs);
             Class jobClazz = jobClassInfo.getClass();

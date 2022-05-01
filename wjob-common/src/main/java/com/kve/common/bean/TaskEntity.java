@@ -30,24 +30,19 @@ public class TaskEntity extends BaseEntity implements Serializable {
     private String appName;
 
     /**
-     * 任务接口类名
+     * 目标实例类
      */
-    private String jobClass;
+    private String targetClass;
 
     /**
-     * 任务接口方法
+     * 目标实例方法
      */
-    private String jobMethod;
+    private String targetMethod;
 
     /**
-     * 任务分组
+     * 目标实例参数
      */
-    private String jobGroup;
-
-    /**
-     * 任务名称
-     */
-    private String jobName;
+    private String targetArguments;
 
     /**
      * 任务描述
@@ -60,20 +55,26 @@ public class TaskEntity extends BaseEntity implements Serializable {
     private String cronExpression;
 
     /**
-     * 任务状态：1 未开始；2 暂停；3 恢复；4 已完成
+     * 任务状态：1 创建；2 运行 3 暂停；4 恢复；5 已完成
      */
     private Integer jobStatus;
 
     /**
-     * 任务参数
+     * 调度器名
      */
-    private String JobArguments;
+    private String triggerName;
 
-    public String getTriggerName() {
-        return "job" + ":" + this.getJobClass() + ":" + this.getJobMethod() + ":Trigger";
-    }
+    /**
+     * 调度器分组
+     */
+    private String triggerGroup;
 
-    public String getQuartzJobName() {
-        return this.getJobClass() + "." + this.getJobMethod();
-    }
+
+//    public String getTriggerName() {
+//        return this.jobGroup + "." + this.jobName;
+//    }
+
+//    public String getQuartzJobName() {
+//        return this.getJobClass() + "." + this.getJobMethod();
+//    }
 }

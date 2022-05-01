@@ -97,7 +97,7 @@ public class TaskController1 {
 
         try {
             for (QuartzService worker : workerList) {
-                 worker.resumeJob(jobKey); //调用远程服务
+//                 worker.resumeJob(jobKey); //调用远程服务
             }
         } catch (Exception e) {
             e.printStackTrace();

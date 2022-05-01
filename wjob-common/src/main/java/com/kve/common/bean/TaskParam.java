@@ -19,24 +19,21 @@ import java.util.Map;
 public class TaskParam extends BaseParam {
     private Integer jobId;
 
-    private String jobClass;
+    private String targetClass;
 
-    private String jobMethod;
+    private String targetMethod;
 
-    private String jobGroup;
+    private String triggerGroup;
 
-    private String jobName;
+    private String triggerName;
 
     private String description;
 
     private String cronExpression;
 
-    /**
-     * 任务状态：1 创建；2 暂停；3 恢复；4 已完成
-     */
     private Integer jobStatus;
 
-    private String methodArgs;
+    private String targetArguments;
 
     private Map<String, Object> extendsMap;
 }

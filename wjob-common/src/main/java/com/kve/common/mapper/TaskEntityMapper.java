@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @date: 2022-03-15
  */
 
-@Mapper
+@Repository
 public interface TaskEntityMapper {
     /**
      * 更新任务
@@ -22,8 +22,8 @@ public interface TaskEntityMapper {
      */
     int countByJobDetail(@Param("appName") String appName,
                                      @Param("jobGroup") String jobGroup,
-                                     @Param("jobClass") String jobClass,
-                                     @Param("jobMethod") String jobMethod);
+                                     @Param("targetClass") String targetClass,
+                                     @Param("targetMethod") String targetMethod);
 
     /**
      * 新增task

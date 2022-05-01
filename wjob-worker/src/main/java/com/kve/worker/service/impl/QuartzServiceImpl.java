@@ -42,43 +42,50 @@ public class QuartzServiceImpl implements QuartzService {
     public void startJob(TaskEntity taskEntity) throws Exception{
         JobDataMap dataMap = getJobDataMap(taskEntity);
         try {
-            //trigger
+            //Trigger-----
             TriggerKey triggerKey = TriggerKey.triggerKey(taskEntity.getTriggerName(),
-                    taskEntity.getJobGroup());
+                    taskEntity.getTriggerGroup());
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
-            //若任务调度已存在
+            //若任务调度存在
             if (trigger != null) {
-                trigger.getTriggerBuilder().withIdentity(taskEntity.getTriggerName(), taskEntity.getJobGroup()).withSchedule(
+                trigger.getTriggerBuilder().withIdentity(taskEntity.getTriggerName(), taskEntity.getTriggerGroup()).withSchedule(
                                 CronScheduleBuilder.cronSchedule(taskEntity.getCronExpression()))
                         .build();
                 //重新执行任务
                 scheduler.rescheduleJob(triggerKey, trigger);
-                log.info("[ QuartzService ] >> startJob exist task end triggerName:{},JobGroup:{}", taskEntity.getTriggerName(), taskEntity.getJobGroup());
+                log.info("[ QuartzService ] >> startJob exist task end triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(), taskEntity.getTriggerGroup());
                 return;
             }
 
-            //任务执行类job
-            JobDetail job = JobBuilder.newJob(TaskBean.class)
-                    // 任务名（类名+方法名+参数）任务组
-                    .withIdentity(taskEntity.getJobName(), taskEntity.getJobGroup())
-                    .usingJobData(dataMap)
-                    .build();
-
+            //任务调度类不存在
             trigger = TriggerBuilder.newTrigger()
                     .withIdentity(triggerKey)
                     .withSchedule(CronScheduleBuilder.cronSchedule(taskEntity.getCronExpression()))
                     .build();
 
+            //Job-----
+            JobKey jobKey = JobKey.jobKey(taskEntity.getTargetMethod(), taskEntity.getTargetClass());
+            JobDetail job = scheduler.getJobDetail(jobKey);
+            //任务调度实体不存在
+            if (job == null) {
+                job = JobBuilder.newJob(TaskBean.class)
+                        // 任务名（类名+方法名+参数）任务组
+                        .withIdentity(jobKey)
+                        .usingJobData(dataMap)
+                        .build();
+            }
+
             //执行任务
             scheduler.scheduleJob(job, trigger);
             scheduler.start();
         } catch (SchedulerException e) {
-            log.info("[ QuartzService ] >> startJob exception triggerName:{},JobGroup:{}", taskEntity.getTriggerName(),
-                    taskEntity.getJobGroup(), e);
+            log.info("[ QuartzService ] >> startJob exception triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(),
+                    taskEntity.getTriggerGroup(), e);
             throw new Exception("任务启动失败");
         }
 
-        log.info("[ QuartzSchedulerUtil ] >> enable new task end triggerName:{},JobGroup:{}", taskEntity.getTriggerName(), taskEntity.getJobGroup());
+        log.info("[ QuartzSchedulerUtil ] >> enable new task end triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(),
+                taskEntity.getTriggerGroup());
     }
 
     /**
@@ -89,10 +96,9 @@ public class QuartzServiceImpl implements QuartzService {
         JobDataMap dataMap = new JobDataMap();
         if (!StringUtils.isEmpty(taskEntity.getId())) dataMap.put("jobId", taskEntity.getId());
         if (!StringUtils.isEmpty(taskEntity.getAppName())) dataMap.put("appName", taskEntity.getAppName());
-        if (!StringUtils.isEmpty(taskEntity.getJobClass())) dataMap.put("jobClass", taskEntity.getJobClass());
-        if (!StringUtils.isEmpty(taskEntity.getJobMethod())) dataMap.put("jobMethod", taskEntity.getJobMethod());
-        if (!StringUtils.isEmpty(taskEntity.getJobArguments())) dataMap.put("methodArgs", taskEntity.getJobArguments());
-
+        if (!StringUtils.isEmpty(taskEntity.getTargetClass())) dataMap.put("jobClass", taskEntity.getTargetClass());
+        if (!StringUtils.isEmpty(taskEntity.getTargetMethod())) dataMap.put("jobMethod", taskEntity.getTargetMethod());
+        if (!StringUtils.isEmpty(taskEntity.getTargetArguments())) dataMap.put("methodArgs", taskEntity.getTargetArguments());
         return dataMap;
     }
 

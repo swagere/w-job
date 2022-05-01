@@ -5,9 +5,9 @@
     <resultMap type="com.kve.common.bean.TaskEntity" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="appName" column="app_name"/>
-        <result property="jobClass" column="job_class"/>
-        <result property="jobMethod" column="job_method"/>
-        <result property="jobArguments" column="job_arguments"/>
+        <result property="targetClass" column="target_class"/>
+        <result property="targetMethod" column="target_method"/>
+        <result property="targetArguments" column="target_arguments"/>
         <result property="jobGroup" column="job_group"/>
         <result property="jobName" column="job_name"/>
         <result property="jobStatus" column="job_status"/>
@@ -24,7 +24,7 @@
     </resultMap>
 
     <sql id="ScheduledTask">
-        id, app_name, job_class, job_method, job_arguments,
+        id, app_name, target_class, target_method, target_arguments,
         job_group, job_name, job_status, cron_expression,
         description,last_run_timestamp, create_time, update_time,create_by,create_name,update_by,update_name,del_flag
     </sql>
@@ -39,14 +39,14 @@
             <if test="appName != null">
                 app_name,
             </if>
-            <if test="jobClass != null">
-                job_class,
+            <if test="targetClass != null">
+                target_class,
             </if>
-            <if test="jobMethod != null">
-                job_method,
+            <if test="targetMethod != null">
+                target_method,
             </if>
-            <if test="jobArguments != null">
-                job_arguments,
+            <if test="targetArguments != null">
+                target_arguments,
             </if>
             <if test="jobGroup != null">
                 job_group,
@@ -80,14 +80,14 @@
             <if test="appName != null">
                 #{appName,jdbcType=VARCHAR},
             </if>
-            <if test="jobClass != null">
-                #{jobClass,jdbcType=VARCHAR},
+            <if test="targetClass != null">
+                #{targetClass,jdbcType=VARCHAR},
             </if>
-            <if test="jobMethod != null">
-                #{jobMethod,jdbcType=VARCHAR},
+            <if test="targetMethod != null">
+                #{targetMethod,jdbcType=VARCHAR},
             </if>
-            <if test="jobArguments != null">
-                #{jobArguments,jdbcType=VARCHAR},
+            <if test="targetArguments != null">
+                #{targetArguments,jdbcType=VARCHAR},
             </if>
             <if test="jobGroup != null">
                 #{jobGroup,jdbcType=VARCHAR},
@@ -122,14 +122,14 @@
     <update id="updateByAppNameAndId" parameterType="com.kve.common.bean.TaskEntity">
         UPDATE scheduled_task
         <set>
-            <if test="jobClass!=null">
-                job_class=#{jobClass,jdbcType=VARCHAR},
+            <if test="targetClass!=null">
+                target_class=#{targetClass,jdbcType=VARCHAR},
             </if>
-            <if test="jobMethod!=null">
-                job_method=#{jobMethod,jdbcType=VARCHAR},
+            <if test="targetMethod!=null">
+                target_method=#{targetMethod,jdbcType=VARCHAR},
             </if>
-            <if test="jobArguments!=null">
-                job_arguments=#{jobArguments,jdbcType=VARCHAR},
+            <if test="targetArguments!=null">
+                target_arguments=#{targetArguments,jdbcType=VARCHAR},
             </if>
             <if test="jobGroup!=null">
                 job_group=#{jobGroup,jdbcType=VARCHAR},
@@ -169,8 +169,8 @@
         WHERE del_flag=0
         AND app_name=#{appName,jdbcType=VARCHAR}
         AND job_group=#{jobGroup,jdbcType=VARCHAR}
-        AND job_class=#{jobClass,jdbcType=VARCHAR}
-        AND job_method=#{jobMethod,jdbcType=VARCHAR}
+        AND target_class=#{targetClass,jdbcType=VARCHAR}
+        AND target_method=#{targetMethod,jdbcType=VARCHAR}
     </select>
 
     <select id="findByAppNameAndId" parameterType="java.util.Map"

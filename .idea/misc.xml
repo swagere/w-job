@@ -12,6 +12,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/JavaTask/pom.xml" />
+        <option value="$PROJECT_DIR$/quartz-example/pom.xml" />
       </set>
     </option>
   </component>

@@ -9,12 +9,12 @@
         <outputRelativeToContentRoot value="true" />
         <module name="wjob-common" />
         <module name="wjob-worker" />
-        <module name="quartz-example" />
         <module name="wjob-master" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="JavaTask" target="1.5" />
+      <module name="quartz-example" target="1.8" />
       <module name="wjob-rpc" target="1.8" />
       <module name="wjob-rpc-client" target="1.8" />
       <module name="wjob-rpc-server" target="1.8" />

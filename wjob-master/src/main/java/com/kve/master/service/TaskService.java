@@ -122,6 +122,60 @@ public class TaskService {
         }
     }
 
+    /**
+     * 暂停任务
+     */
+    public void pauseJob(TaskParam taskParam) throws Exception {
+        //判断任务状态
+        TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
+        if (taskEntity == null) {
+            throw new Exception("任务不存在");
+        }
+
+        //校验任务是否已启动
+        if (!taskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
+            throw new Exception("任务未启动，无法执行暂停操作");
+        }
+
+        //RPC调用
+        RpcService.pauseJob(taskEntity);
+
+        //更新任务状态
+        TaskEntity task = new TaskEntity();
+        task.setId(taskEntity.getId());
+        taskEntity.setJobStatus(TaskStatusEnum.PAUSE.getValue());
+        taskEntityMapper.updateById(taskEntity);
+
+        log.info("TaskService >> pauseJob end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
+    }
+
+    /**
+     * 恢复任务
+     */
+    public void resumeJob(TaskParam taskParam) throws Exception {
+        //判断任务状态
+        TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
+        if (taskEntity == null) {
+            throw new Exception("任务不存在");
+        }
+
+        //校验任务处于暂停/未开始状态
+        if (taskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
+            throw new Exception("任务正在执行中，无法执行恢复操作");
+        }
+
+        //RPC调用
+        RpcService.resumeJob(taskEntity);
+
+        //更新任务状态
+        TaskEntity task = new TaskEntity();
+        task.setId(taskEntity.getId());
+        taskEntity.setJobStatus(TaskStatusEnum.RUNNING.getValue());
+        taskEntityMapper.updateById(taskEntity);
+
+        log.info("TaskService >> pauseJob end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
+    }
+
 
     /**
      * 构建TaskEntity任务参数
@@ -222,6 +276,5 @@ public class TaskService {
             throw e;
         }
     }
-
 
 }

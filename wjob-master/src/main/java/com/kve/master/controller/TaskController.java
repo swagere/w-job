@@ -55,15 +55,15 @@ public class TaskController {
     }
 
     /**
-     * 恢复定时任务
+     * 暂停任务
      * @param taskParam
      * @return
      */
-    @RequestMapping("/resumeJob")
+    @RequestMapping("/pauseJob")
     @ResponseBody
-    private Boolean resumeJob(@RequestBody TaskParam taskParam){
+    private Boolean pauseJob(@RequestBody TaskParam taskParam){
         try {
-//            taskService.resumeJob(taskParam);
+            taskService.pauseJob(taskParam);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -73,15 +73,15 @@ public class TaskController {
     }
 
     /**
-     * 暂停任务
+     * 恢复任务
      * @param taskParam
      * @return
      */
-    @RequestMapping("/pauseJob")
+    @RequestMapping("/resumeJob")
     @ResponseBody
-    private Boolean pauseJob(@RequestBody TaskParam taskParam){
+    private Boolean resumeJob(@RequestBody TaskParam taskParam){
         try {
-//            taskService.pauseJob(taskParam);
+            taskService.resumeJob(taskParam);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

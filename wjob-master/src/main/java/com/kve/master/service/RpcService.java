@@ -35,4 +35,16 @@ public class RpcService {
             worker.startJob(taskEntity); //调用远程服务
         }
     }
+
+    public static void pauseJob(TaskEntity taskEntity) throws Exception {
+        for (QuartzService worker : workerList) {
+            worker.pauseJob(taskEntity);
+        }
+    }
+
+    public static void resumeJob(TaskEntity taskEntity) throws Exception {
+        for (QuartzService worker : workerList) {
+            worker.startJob(taskEntity);
+        }
+    }
 }

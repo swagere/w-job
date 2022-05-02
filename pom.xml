@@ -16,7 +16,6 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>quartz-example</module>
 		<module>wjob-worker</module>
 		<module>wjob-master</module>
 		<module>wjob-common</module>

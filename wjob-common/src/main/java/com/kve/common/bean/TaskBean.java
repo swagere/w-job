@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
  * @author: hujing39
  * @date: 2022-03-14
  */
-@DisallowConcurrentExecution
+//@DisallowConcurrentExecution
 public class TaskBean implements Job {
     private static Logger log = LoggerFactory.getLogger(TaskBean.class);
 
@@ -25,7 +25,7 @@ public class TaskBean implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap map = context.getMergedJobDataMap();
         //任务ID
-        Integer jobId = (Integer) map.get("jobId");
+        Integer triggerId = (Integer) map.get("triggerId");
         //目标类名
         String targetClass = map.getString("targetClass");
         //目标方法
@@ -41,7 +41,7 @@ public class TaskBean implements Job {
         try {
             //任务日志标识
             MDC.put("logId", RandomUtils.randomAlphanumeric(15));
-            log.info("[ JobDetail ] >> job start jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}", jobId, targetClass, targetMethod, targetArguments);
+            log.info("[ JobDetail ] >> trigger start triggerId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}", triggerId, targetClass, targetMethod, targetArguments);
             //任务参数处理
             Object[] jobArs = ParamUtil.getJobArgs(targetArguments);
 
@@ -60,15 +60,15 @@ public class TaskBean implements Job {
             }
             method.invoke(target, jobArs);
         } catch (Exception e) {
-            log.error("[ JobDetail ] >> job execute exception jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}"
-                    , jobId, targetClass, targetMethod, targetArguments, e);
+            log.error("[ JobDetail ] >> trigger execute exception triggerId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}"
+                    , triggerId, targetClass, targetMethod, targetArguments, e);
             throw new JobExecutionException(e);
         }
 
-        this.updateAfterRun(jobId);
+        this.updateAfterRun(triggerId);
 
-        log.info("[ JobDetail ] >> job end jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{} , time:{} ms"
-                , jobId, targetClass, targetMethod, targetArguments, (System.currentTimeMillis() - startTime));
+        log.info("[ JobDetail ] >> trigger end triggerId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{} , time:{} ms"
+                , triggerId, targetClass, targetMethod, targetArguments, (System.currentTimeMillis() - startTime));
 
     }
 

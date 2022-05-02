@@ -26,14 +26,12 @@ public class TaskBean implements Job {
         JobDataMap map = context.getMergedJobDataMap();
         //任务ID
         Integer jobId = (Integer) map.get("jobId");
-        //项目名称
-        String appName = map.getString("appName");
         //目标类名
-        String targetClass = map.getString("jobClass");
+        String targetClass = map.getString("targetClass");
         //目标方法
-        String targetMethod = map.getString("jobMethod");
+        String targetMethod = map.getString("targetMethod");
         //方法参数
-        String methodArgs = map.getString("methodArgs");
+        String targetArguments = map.getString("targetArguments");
 
         if (StringUtils.isEmpty(targetClass) || StringUtils.isEmpty(targetMethod)) {
             throw new JobExecutionException("缺少执行类信息");
@@ -43,9 +41,9 @@ public class TaskBean implements Job {
         try {
             //任务日志标识
             MDC.put("logId", RandomUtils.randomAlphanumeric(15));
-            log.info("[ JobDetail ] >> job start jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}", jobId, targetClass, targetMethod, methodArgs);
+            log.info("[ JobDetail ] >> job start jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}", jobId, targetClass, targetMethod, targetArguments);
             //任务参数处理
-            Object[] jobArs = ParamUtil.getJobArgs(methodArgs);
+            Object[] jobArs = ParamUtil.getJobArgs(targetArguments);
 
             //目标类处理
             Object target = ApplicationContextHelper.getApplicationContext().getBean(targetClass); //从ApplicationContext中获取到spring管理的bean
@@ -63,28 +61,27 @@ public class TaskBean implements Job {
             method.invoke(target, jobArs);
         } catch (Exception e) {
             log.error("[ JobDetail ] >> job execute exception jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}"
-                    , jobId, targetClass, targetMethod, methodArgs, e);
+                    , jobId, targetClass, targetMethod, targetArguments, e);
             throw new JobExecutionException(e);
         }
 
-        this.updateAfterRun(jobId, appName);
+        this.updateAfterRun(jobId);
 
         log.info("[ JobDetail ] >> job end jobId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{} , time:{} ms"
-                , jobId, targetClass, targetMethod, methodArgs, (System.currentTimeMillis() - startTime));
+                , jobId, targetClass, targetMethod, targetArguments, (System.currentTimeMillis() - startTime));
 
     }
 
-    private void updateAfterRun(Integer jobId, String appName) {
+    private void updateAfterRun(Integer jobId) {
         try {
             TaskEntityMapper taskEntityMapper = ApplicationContextHelper.getApplicationContext().getBean(TaskEntityMapper.class);
             //更新最后执行时间
             TaskEntity task = new TaskEntity();
             task.setId(jobId);
-            task.setAppName(appName);
             task.setLastRunTimestamp(System.currentTimeMillis());
-            taskEntityMapper.updateByAppNameAndId(task);
+            taskEntityMapper.updateById(task);
         } catch (Exception e) {
-            log.error("[ JobDetail ] >> job updateAfterRun exception jobId:{} , projectKey:{} ", jobId, appName, e);
+            log.error("[ JobDetail ] >> job updateAfterRun exception jobId:{} , projectKey:{} ", jobId, e);
         }
     }
 }

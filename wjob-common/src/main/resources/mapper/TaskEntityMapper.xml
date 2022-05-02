@@ -4,12 +4,11 @@
 
     <resultMap type="com.kve.common.bean.TaskEntity" id="BaseResultMap">
         <result property="id" column="id"/>
-        <result property="appName" column="app_name"/>
         <result property="targetClass" column="target_class"/>
         <result property="targetMethod" column="target_method"/>
         <result property="targetArguments" column="target_arguments"/>
-        <result property="jobGroup" column="job_group"/>
-        <result property="jobName" column="job_name"/>
+        <result property="triggerGroup" column="trigger_group"/>
+        <result property="triggerName" column="trigger_name"/>
         <result property="jobStatus" column="job_status"/>
         <result property="cronExpression" column="cron_expression"/>
         <result property="description" column="description"/>
@@ -24,8 +23,8 @@
     </resultMap>
 
     <sql id="ScheduledTask">
-        id, app_name, target_class, target_method, target_arguments,
-        job_group, job_name, job_status, cron_expression,
+        id, target_class, target_method, target_arguments,
+        trigger_group, trigger_name, job_status, cron_expression,
         description,last_run_timestamp, create_time, update_time,create_by,create_name,update_by,update_name,del_flag
     </sql>
 
@@ -36,9 +35,6 @@
         </selectKey>
         INSERT INTO scheduled_task
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="appName != null">
-                app_name,
-            </if>
             <if test="targetClass != null">
                 target_class,
             </if>
@@ -48,11 +44,11 @@
             <if test="targetArguments != null">
                 target_arguments,
             </if>
-            <if test="jobGroup != null">
-                job_group,
+            <if test="triggerGroup != null">
+                trigger_group,
             </if>
-            <if test="jobName != null">
-                job_name,
+            <if test="triggerName != null">
+                trigger_name,
             </if>
             <if test="jobStatus != null">
                 job_status,
@@ -77,9 +73,6 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="appName != null">
-                #{appName,jdbcType=VARCHAR},
-            </if>
             <if test="targetClass != null">
                 #{targetClass,jdbcType=VARCHAR},
             </if>
@@ -89,11 +82,11 @@
             <if test="targetArguments != null">
                 #{targetArguments,jdbcType=VARCHAR},
             </if>
-            <if test="jobGroup != null">
-                #{jobGroup,jdbcType=VARCHAR},
+            <if test="triggerGroup != null">
+                #{triggerGroup,jdbcType=VARCHAR},
             </if>
-            <if test="jobName != null">
-                #{jobName,jdbcType=VARCHAR},
+            <if test="triggerName != null">
+                #{triggerName,jdbcType=VARCHAR},
             </if>
             <if test="jobStatus != null">
                 #{jobStatus,jdbcType=TINYINT},
@@ -119,7 +112,7 @@
         </trim>
     </insert>
 
-    <update id="updateByAppNameAndId" parameterType="com.kve.common.bean.TaskEntity">
+    <update id="updateById" parameterType="com.kve.common.bean.TaskEntity">
         UPDATE scheduled_task
         <set>
             <if test="targetClass!=null">
@@ -131,11 +124,11 @@
             <if test="targetArguments!=null">
                 target_arguments=#{targetArguments,jdbcType=VARCHAR},
             </if>
-            <if test="jobGroup!=null">
-                job_group=#{jobGroup,jdbcType=VARCHAR},
+            <if test="triggerGroup!=null">
+                trigger_group=#{triggerGroup,jdbcType=VARCHAR},
             </if>
-            <if test="jobName!=null">
-                job_name=#{jobName,jdbcType=VARCHAR},
+            <if test="triggerName!=null">
+                trigger_name=#{triggerName,jdbcType=VARCHAR},
             </if>
             <if test="jobStatus!=null">
                 job_status=#{jobStatus,jdbcType=TINYINT},
@@ -159,27 +152,24 @@
                 del_flag=#{delFlag,jdbcType=TINYINT},
             </if>
         </set>
-        WHERE app_name=#{appName,jdbcType=VARCHAR} AND id=#{id,jdbcType=INTEGER}
+        WHERE id=#{id,jdbcType=INTEGER}
     </update>
 
-    <select id="countByJobDetail" resultType="java.lang.Integer">
+    <select id="countByTriggerDetail" resultType="java.lang.Integer">
         SELECT
         count(1)
         FROM scheduled_task
         WHERE del_flag=0
-        AND app_name=#{appName,jdbcType=VARCHAR}
-        AND job_group=#{jobGroup,jdbcType=VARCHAR}
-        AND target_class=#{targetClass,jdbcType=VARCHAR}
-        AND target_method=#{targetMethod,jdbcType=VARCHAR}
+        AND trigger_group=#{triggerGroup,jdbcType=VARCHAR}
+        AND trigger_name=#{triggerName,jdbcType=VARCHAR}
     </select>
 
-    <select id="findByAppNameAndId" parameterType="java.util.Map"
+    <select id="findById" parameterType="java.util.Map"
             resultMap="BaseResultMap">
         SELECT
         <include refid="ScheduledTask"/>
         FROM scheduled_task
         WHERE del_flag=0
-        AND app_name=#{appName,jdbcType=VARCHAR}
         AND id=#{id,jdbcType=INTEGER}
         LIMIT 1
     </select>

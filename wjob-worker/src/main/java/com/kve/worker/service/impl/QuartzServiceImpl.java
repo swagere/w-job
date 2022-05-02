@@ -21,23 +21,6 @@ public class QuartzServiceImpl implements QuartzService {
     @Autowired
     private Scheduler scheduler;
 
-//    @Override
-//    public void resumeJob(String jobKey) {
-//        try {
-//            System.out.println("执行任务, jobKey : " + jobKey);
-//            System.out.println("schedule : " + scheduler);
-//            System.out.println("example : " + this.hashCode());
-//            String[] keyArray = jobKey.split("\\.");
-//            JobKey key = JobKey.jobKey(keyArray[1], keyArray[0]);
-//            scheduler.resumeJob(key);
-//            scheduler.start();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            System.out.println(e.getMessage());
-//        }
-//
-//    }
-
     @Override
     public void startJob(TaskEntity taskEntity) throws Exception{
         JobDataMap dataMap = getJobDataMap(taskEntity);
@@ -48,6 +31,7 @@ public class QuartzServiceImpl implements QuartzService {
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
             //若任务调度存在
             if (trigger != null) {
+                // TODO: 2022/5/2 重新执行任务的条件不能仅仅依靠trigger是否存在判断
                 trigger.getTriggerBuilder().withIdentity(taskEntity.getTriggerName(), taskEntity.getTriggerGroup()).withSchedule(
                                 CronScheduleBuilder.cronSchedule(taskEntity.getCronExpression()))
                         .build();
@@ -77,14 +61,13 @@ public class QuartzServiceImpl implements QuartzService {
 
             //执行任务
             scheduler.scheduleJob(job, trigger);
-            scheduler.start();
         } catch (SchedulerException e) {
             log.info("[ QuartzService ] >> startJob exception triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(),
                     taskEntity.getTriggerGroup(), e);
             throw new Exception("任务启动失败");
         }
 
-        log.info("[ QuartzSchedulerUtil ] >> enable new task end triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(),
+        log.info("[ QuartzService ] >> enable new task end triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(),
                 taskEntity.getTriggerGroup());
     }
 
@@ -95,10 +78,9 @@ public class QuartzServiceImpl implements QuartzService {
     private JobDataMap getJobDataMap(TaskEntity taskEntity) {
         JobDataMap dataMap = new JobDataMap();
         if (!StringUtils.isEmpty(taskEntity.getId())) dataMap.put("jobId", taskEntity.getId());
-        if (!StringUtils.isEmpty(taskEntity.getAppName())) dataMap.put("appName", taskEntity.getAppName());
-        if (!StringUtils.isEmpty(taskEntity.getTargetClass())) dataMap.put("jobClass", taskEntity.getTargetClass());
-        if (!StringUtils.isEmpty(taskEntity.getTargetMethod())) dataMap.put("jobMethod", taskEntity.getTargetMethod());
-        if (!StringUtils.isEmpty(taskEntity.getTargetArguments())) dataMap.put("methodArgs", taskEntity.getTargetArguments());
+        if (!StringUtils.isEmpty(taskEntity.getTargetClass())) dataMap.put("targetClass", taskEntity.getTargetClass());
+        if (!StringUtils.isEmpty(taskEntity.getTargetMethod())) dataMap.put("targetMethod", taskEntity.getTargetMethod());
+        if (!StringUtils.isEmpty(taskEntity.getTargetArguments())) dataMap.put("targetArguments", taskEntity.getTargetArguments());
         return dataMap;
     }
 

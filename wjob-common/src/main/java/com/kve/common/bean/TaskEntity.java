@@ -25,11 +25,6 @@ public class TaskEntity extends BaseEntity implements Serializable {
     private Integer id;
 
     /**
-     * 应用名称
-     */
-    private String appName;
-
-    /**
      * 目标实例类
      */
     private String targetClass;
@@ -60,12 +55,12 @@ public class TaskEntity extends BaseEntity implements Serializable {
     private Integer jobStatus;
 
     /**
-     * 调度器名
+     * 调度器名-任务名称
      */
     private String triggerName;
 
     /**
-     * 调度器分组
+     * 调度器分组-应用名称
      */
     private String triggerGroup;
 

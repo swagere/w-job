@@ -1,10 +1,8 @@
 package com.kve.master.service;
 
 import com.alibaba.fastjson.JSON;
-import com.kve.common.bean.HelloJob;
+import com.kve.common.bean.enums.TaskStatusEnum;
 import com.kve.common.config.ApplicationContextHelper;
-import com.kve.common.config.CommonConfigConstants;
-import com.kve.common.service.QuartzService;
 import com.kve.common.util.ParamUtil;
 import com.kve.common.mapper.TaskEntityMapper;
 import com.kve.common.bean.TaskEntity;
@@ -31,9 +29,6 @@ public class TaskService {
 
     private final ReentrantLock reentrantLock = new ReentrantLock();
 
-    @Value("${wjob.appName}")
-    private static final String appName = CommonConfigConstants.appName;
-
 
     @Autowired
     private Scheduler scheduler;
@@ -47,7 +42,7 @@ public class TaskService {
      * @throws SchedulerException
      */
     public void saveTask(TaskParam taskParam) throws Exception{
-        reentrantLock.lock();
+//        reentrantLock.lock();
         try {
             //基本参数是否为空校验
             if (!checkParamAfterSaveOrUpdate(taskParam)) {
@@ -57,26 +52,24 @@ public class TaskService {
             if (!CronExpression.isValidExpression(taskParam.getCronExpression())) {
                 throw new Exception("时间表达式校验失败");
             }
+            //任务存在性校验
+            if (existTask(taskParam)) {
+                throw new Exception("任务已经被创建，请使用不同的应用名称或任务名称");
+            }
 
             TaskEntity taskEntity = buildTaskEntity(taskParam);
 
             //数据持久化
-            taskEntity.setJobStatus(1); //创建态
+            taskEntity.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
             taskEntityMapper.addTask(taskEntity);
+
             log.info("TaskService>> saveTask end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
         } finally {
-            reentrantLock.unlock();
-            log.debug("new job, unlock >> addJob >> param={}", JSON.toJSONString(taskParam));
+//            reentrantLock.unlock();
+//            log.debug("new job, unlock >> addJob >> param={}", JSON.toJSONString(taskParam));
         }
 
     }
-
-//    public void pauseJob(TaskParam taskParam) throws SchedulerException {
-//        // TODO: 2022/3/14 数据库更改TaskInfo status设置为2
-//
-//        JobKey jobKey = new JobKey(taskParam.getJobName(), taskParam.getJobGroup());
-//        scheduler.pauseJob(jobKey);
-//    }
 
 //    public void resumeJob(TaskParam taskParam) throws SchedulerException {
 //        // TODO: 2022/3/15 数据库更改TaskInfo status设置为3
@@ -90,13 +83,18 @@ public class TaskService {
      * 启动任务
      */
     public void startJob(TaskParam taskParam) throws Exception{
-        reentrantLock.lock();
+//        reentrantLock.lock();
         try {
             //查询任务是否存在
-            TaskEntity taskEntity = taskEntityMapper.findByAppNameAndId(taskParam.getJobId(), appName);
+            TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
+
+            if (taskEntity == null) {
+                throw new Exception("任务不存在");
+            }
 
             //校验任务是否已启动
-            if (!taskEntity.getJobStatus().equals(1) && isStart(taskEntity)) {
+            // TODO: 2022/5/2 任务已启动不能仅仅判断其trigger是否存在 
+            if (!taskEntity.getJobStatus().equals(TaskStatusEnum.CREATE.getValue()) && isStart(taskEntity)) {
                 throw new Exception("任务已启动");
             }
 
@@ -109,20 +107,18 @@ public class TaskService {
             checkBeanAndMethodExists(taskEntity.getTargetClass(), taskEntity.getTargetMethod(), taskEntity.getTargetArguments());
 
             //RPC调用
-            // TODO: 2022/3/16  worker 利用quartz的方法创建job时的数据一致性
             RpcService.startJob(taskEntity);
 
             //更新任务状态
             TaskEntity task = new TaskEntity();
             task.setId(taskEntity.getId());
-            task.setAppName(appName);
-            taskEntity.setJobStatus(2);
-            taskEntityMapper.updateByAppNameAndId(taskEntity);
+            taskEntity.setJobStatus(TaskStatusEnum.RUNNING.getValue());
+            taskEntityMapper.updateById(taskEntity);
 
             log.info("TaskService >> startJob end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
         } finally {
-            reentrantLock.unlock();
-            log.debug("启动任务job , 释放锁 >> startJob >> param={}", JSON.toJSONString(taskParam));
+//            reentrantLock.unlock();
+//            log.debug("启动任务job , 释放锁 >> startJob >> param={}", JSON.toJSONString(taskParam));
         }
     }
 
@@ -132,9 +128,8 @@ public class TaskService {
      */
     private TaskEntity buildTaskEntity(TaskParam taskParam) {
         TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setAppName(appName);
         taskEntity.setTargetClass(taskParam.getTargetClass());
-        taskEntity.setTargetClass(taskParam.getTargetClass());
+        taskEntity.setTargetMethod(taskParam.getTargetMethod());
         taskEntity.setTriggerGroup(taskParam.getTriggerGroup());
         taskEntity.setTriggerName(taskParam.getTriggerName());
         taskEntity.setCronExpression(taskParam.getCronExpression());
@@ -169,6 +164,23 @@ public class TaskService {
         }
 
         return true;
+    }
+
+    /**
+     * 检查任务是否已经被创建
+     * triggerName triggerGroup
+     */
+    private boolean existTask(TaskParam taskParam) throws SchedulerException {
+        TriggerKey triggerKey = new TriggerKey(taskParam.getTriggerName(), taskParam.getTriggerGroup());
+        if (scheduler.getTrigger(triggerKey) != null) {
+            return true;
+        }
+
+        int count = taskEntityMapper.countByTriggerDetail(taskParam.getTriggerGroup(), taskParam.getTriggerName());
+        if (count > 0) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -210,4 +222,6 @@ public class TaskService {
             throw e;
         }
     }
+
+
 }

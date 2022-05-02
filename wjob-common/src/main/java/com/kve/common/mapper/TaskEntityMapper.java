@@ -15,15 +15,12 @@ public interface TaskEntityMapper {
     /**
      * 更新任务
      */
-    void updateByAppNameAndId(TaskEntity task);
+    void updateById(TaskEntity task);
 
     /**
-     * 组和名称相同的任务
+     * trigger组和名称相同的任务
      */
-    int countByJobDetail(@Param("appName") String appName,
-                                     @Param("jobGroup") String jobGroup,
-                                     @Param("targetClass") String targetClass,
-                                     @Param("targetMethod") String targetMethod);
+    int countByTriggerDetail(@Param("triggerGroup") String triggerGroup, @Param("triggerName") String triggerName);
 
     /**
      * 新增task
@@ -33,6 +30,6 @@ public interface TaskEntityMapper {
     /**
      * 根据项目与ID查询任务
      */
-    TaskEntity findByAppNameAndId(@Param("id") Integer id, @Param("appName") String appName);
+    TaskEntity findById(@Param("id") Integer id);
 
 }

@@ -72,7 +72,7 @@ public class QuartzConfig {
             //项目启动完成后，等待2秒后开始执行调度器初始化
             schedulerFactoryBean.setStartupDelay(2);
             //设置调度器自动运行 失效
-            schedulerFactoryBean.setAutoStartup(false);
+            schedulerFactoryBean.setAutoStartup(true);
             //设置数据源
             schedulerFactoryBean.setDataSource(dataSource);
             //设置上下文spring bean name

@@ -176,6 +176,13 @@ public class TaskService {
         log.info("TaskService >> pauseJob end  id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
     }
 
+    /**
+     * 停止任务
+     */
+    public void stopJob(TaskParam taskParam) {
+
+    }
+
 
     /**
      * 构建TaskEntity任务参数

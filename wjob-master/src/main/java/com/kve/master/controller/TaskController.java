@@ -90,4 +90,21 @@ public class TaskController {
         return true;
     }
 
+    /**
+     * 恢复任务
+     * @param taskParam
+     * @return
+     */
+    @RequestMapping("/stopJob")
+    @ResponseBody
+    private Boolean stopJob(@RequestBody TaskParam taskParam){
+        try {
+            taskService.stopJob(taskParam);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
 }

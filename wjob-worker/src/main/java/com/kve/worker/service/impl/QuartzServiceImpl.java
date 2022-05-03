@@ -32,7 +32,6 @@ public class QuartzServiceImpl implements QuartzService {
             //任务调度实体不存在
             if (job == null) {
                 job = JobBuilder.newJob(TaskBean.class)
-                        // 任务名（类名+方法名+参数）任务组
                         .withIdentity(jobKey)
                         .storeDurably() //任务执行结束后 保存到数据库
                         .build();

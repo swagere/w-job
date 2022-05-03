@@ -173,4 +173,33 @@
         AND id=#{id,jdbcType=INTEGER}
         LIMIT 1
     </select>
+
+    <update id="removeById">
+        UPDATE scheduled_task
+        SET del_flag = 1,
+        update_by=#{updateBy,jdbcType=VARCHAR},
+        update_name=#{updateName,jdbcType=VARCHAR}
+        WHERE id=#{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="listPageByCondition" parameterType="com.kve.master.bean.dto.TaskPageQueryDTO"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="ScheduledTask"/>
+        FROM scheduled_task
+        WHERE del_flag=0
+        AND triggerGroup=#{triggerGroup,jdbcType=VARCHAR}
+        <if test="jobStatus !=null and jobStatus!= -1">
+            AND job_status =#{jobStatus,jdbcType=TINYINT}
+        </if>
+        <if test="targetNameLike != null and targetNameLike !='' ">
+            AND target_name LIKE CONCAT(#{targetNameLike,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="targetMethodLike != null and targetMethodLike !='' ">
+            AND target_method LIKE CONCAT(#{targetMethodLike,jdbcType=VARCHAR},'%')
+        </if>
+        ORDER BY job_status,id
+        LIMIT #{limit},#{pageSize}
+    </select>
+
 </mapper>

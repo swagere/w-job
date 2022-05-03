@@ -1,0 +1,86 @@
+package com.kve.master.config;
+
+import org.quartz.spi.JobFactory;
+import org.quartz.spi.TriggerFiredBundle;
+import org.springframework.beans.factory.annotation.Autowire;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.scheduling.quartz.SpringBeanJobFactory;
+
+import javax.sql.DataSource;
+
+/**
+ * @author: hujing39
+ * @date: 2022-03-14
+ */
+
+@Configuration
+@EnableScheduling
+public class QuartzConfig {
+
+    /**
+     * 实现任务实例化方式
+     */
+    public static class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware {
+        private transient AutowireCapableBeanFactory beanFactory;
+
+        @Override
+        public void setApplicationContext(final ApplicationContext context) {
+            beanFactory = context.getAutowireCapableBeanFactory();
+        }
+
+
+        /**
+         * 创建job实例 将实例交给spring ioc托管
+         */
+        @Override
+        protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
+            final Object job = super.createJobInstance(bundle);
+
+            //将job实例交付给spring ioc
+            beanFactory.autowireBean(job);
+            return job;
+        }
+
+        /**
+         * 配置任务工厂实例
+         */
+        @Bean
+        public JobFactory jobFactory(ApplicationContext applicationContext) {
+            AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+            jobFactory.setApplicationContext(applicationContext);
+            return jobFactory;
+        }
+
+        /**
+         * 配置任务调度器
+         * 使用项目数据源作为quartz数据源
+         */
+        @Bean(destroyMethod = "destroy", autowire = Autowire.NO)
+        public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory, DataSource dataSource) throws Exception {
+            SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
+            //将spring管理job自定义工厂交由调度器维护
+            schedulerFactoryBean.setJobFactory(jobFactory);
+            //设置覆盖已存在的任务
+            schedulerFactoryBean.setOverwriteExistingJobs(true);
+            //项目启动完成后，等待2秒后开始执行调度器初始化
+            schedulerFactoryBean.setStartupDelay(20);
+            //设置调度器自动运行
+            schedulerFactoryBean.setAutoStartup(true);
+            //设置数据源
+            schedulerFactoryBean.setDataSource(dataSource);
+            //设置上下文spring bean name
+            schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
+            //设置配置文件位置
+            schedulerFactoryBean.setConfigLocation(new ClassPathResource("/quartz.properties"));
+            return schedulerFactoryBean;
+        }
+    }
+
+}

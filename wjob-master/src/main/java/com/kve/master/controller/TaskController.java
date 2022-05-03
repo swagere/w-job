@@ -1,6 +1,7 @@
 package com.kve.master.controller;
 
-import com.kve.common.bean.TaskParam;
+import com.kve.master.bean.param.TaskPageParam;
+import com.kve.master.bean.param.TaskParam;
 import com.kve.master.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,74 @@ public class TaskController {
     public Boolean createJob(@RequestBody TaskParam taskParam) {
         try {
             taskService.saveTask(taskParam);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 修改任务
+     * @param taskParam
+     * @return
+     */
+    @RequestMapping("/updateJob")
+    @ResponseBody
+    public Boolean updateJob(@RequestBody TaskParam taskParam) {
+        try {
+            taskService.updateJob(taskParam);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 删除任务
+     * @param taskParam
+     * @return
+     */
+    @RequestMapping("/deleteJob")
+    @ResponseBody
+    public Boolean deleteJob(@RequestBody TaskParam taskParam) {
+        try {
+            taskService.deleteJob(taskParam);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 任务列表
+     * @param taskPageParam
+     * @return
+     */
+    @RequestMapping("/listPage")
+    @ResponseBody
+    public Boolean listPageTask(@RequestBody TaskPageParam taskPageParam) {
+        try {
+            taskService.listPageTask(taskPageParam);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 任务详情
+     * @param taskParam
+     * @return
+     */
+    @RequestMapping("/getJob")
+    @ResponseBody
+    public Boolean getJob(@RequestBody TaskParam taskParam) {
+        try {
+            taskService.getJobDetail(taskParam);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

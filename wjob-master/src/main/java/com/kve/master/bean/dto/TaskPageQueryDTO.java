@@ -8,7 +8,6 @@ import java.io.Serializable;
 /**
  * 任务分页查询参数
  *
- * @author mengq
  */
 @Builder
 @ToString

@@ -1,7 +1,9 @@
 package com.kve.master.controller;
 
+import com.kve.master.bean.TaskEntity;
 import com.kve.master.bean.param.TaskPageParam;
 import com.kve.master.bean.param.TaskParam;
+import com.kve.master.bean.vo.TaskPageVO;
 import com.kve.master.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -80,7 +82,8 @@ public class TaskController {
     @ResponseBody
     public Boolean listPageTask(@RequestBody TaskPageParam taskPageParam) {
         try {
-            taskService.listPageTask(taskPageParam);
+            TaskPageVO taskPageVO = taskService.listPageTask(taskPageParam);
+            System.out.println(taskPageVO);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -97,7 +100,8 @@ public class TaskController {
     @ResponseBody
     public Boolean getJob(@RequestBody TaskParam taskParam) {
         try {
-            taskService.getJobDetail(taskParam);
+            TaskEntity taskEntity = taskService.getJobDetail(taskParam);
+            System.out.println(taskEntity);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

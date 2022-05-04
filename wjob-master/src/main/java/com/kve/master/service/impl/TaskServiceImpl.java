@@ -7,7 +7,7 @@ import com.kve.master.bean.param.TaskParam;
 import com.kve.master.bean.vo.TaskPageVO;
 import com.kve.master.config.ApplicationContextHelper;
 import com.kve.master.service.TaskService;
-import com.kve.master.util.JobAdminPageUtils;
+import com.kve.master.util.PageUtils;
 import com.kve.master.util.ParamUtil;
 import com.kve.master.mapper.TaskEntityMapper;
 import com.kve.master.bean.TaskEntity;
@@ -60,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
                 throw new Exception("时间表达式校验失败");
             }
             //任务存在性校验
-            if (existTask(taskParam)) {
+            if (existTask(taskParam.getTriggerName(), taskParam.getTriggerGroup())) {
                 throw new Exception("任务已经被创建，请使用不同的应用名称或任务名称");
             }
 
@@ -94,6 +94,10 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("任务不存在");
         }
 
+        if (oldTaskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
+            throw new Exception("任务正在执行，无法直接修改");
+        }
+
         TaskEntity taskEntity = buildTaskEntity(taskParam);
 
         //数据持久化
@@ -113,7 +117,7 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("任务不存在，无法执行删除操作");
         }
 
-        if (taskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING)) {
+        if (taskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
             throw new Exception("任务正在执行，无法直接删除");
         }
 
@@ -129,11 +133,13 @@ public class TaskServiceImpl implements TaskService {
     public TaskPageVO listPageTask(TaskPageParam taskPageParam) throws Exception {
         //构建查询参数
         TaskPageQueryDTO pageQueryDTO = TaskPageQueryDTO.builder()
-                .limit(JobAdminPageUtils.getStartRow(taskPageParam.getPage(), taskPageParam.getLimit()))
-                .pageSize(JobAdminPageUtils.getOffset(taskPageParam.getLimit()))
+                .limit(PageUtils.getStartRow(taskPageParam.getPage(), taskPageParam.getLimit()))
+                .pageSize(PageUtils.getOffset(taskPageParam.getLimit()))
                 .targetNameLike(taskPageParam.getTargetNameLike())
                 .targetMethodLike(taskPageParam.getTargetMethodLike())
-                .jobStatus(taskPageParam.getJobStatus()).build();
+                .triggerGroup(taskPageParam.getTriggerGroup())
+                .jobStatus(taskPageParam.getJobStatus())
+                .build();
 
         List<TaskEntity> taskList = taskEntityMapper.listPageByCondition(pageQueryDTO);
         if (CollectionUtils.isEmpty(taskList) || taskList.size() <= 0) {
@@ -205,13 +211,13 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void pauseJob(TaskParam taskParam) throws Exception {
         TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (existTask(taskParam)) {
+        if (!existTask(taskEntity.getTriggerName(), taskEntity.getTriggerGroup())) {
             throw new Exception("任务不存在");
         }
 
-        //判断任务状态 校验任务是否已启动
-        if (!taskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
-            throw new Exception("任务未启动，无法执行暂停操作");
+        //判断任务状态 校验任务是否已结束
+        if (taskEntity.getJobStatus().equals(TaskStatusEnum.FINISH_SUCCESS.getValue()) || taskEntity.getJobStatus().equals(TaskStatusEnum.FINISH_EXCEPTION.getValue())) {
+            throw new Exception("任务执行结束，无法执行暂停操作");
         }
 
         QuartzScheduleUtil.pauseJob(taskEntity);
@@ -231,7 +237,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void resumeJob(TaskParam taskParam) throws Exception {
         TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (existTask(taskParam)) {
+        if (!existTask(taskEntity.getTriggerName(), taskEntity.getTriggerGroup())) {
             throw new Exception("任务不存在");
         }
 
@@ -320,13 +326,13 @@ public class TaskServiceImpl implements TaskService {
      * 检查任务是否已经被创建
      * triggerName triggerGroup
      */
-    private boolean existTask(TaskParam taskParam) throws SchedulerException {
-        TriggerKey triggerKey = new TriggerKey(taskParam.getTriggerName(), taskParam.getTriggerGroup());
+    private boolean existTask(String triggerName, String triggerGroup) throws SchedulerException {
+        TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
         if (scheduler.getTrigger(triggerKey) != null) {
             return true;
         }
 
-        int count = taskEntityMapper.countByTriggerDetail(taskParam.getTriggerGroup(), taskParam.getTriggerName());
+        int count = taskEntityMapper.countByTriggerDetail(triggerGroup, triggerName);
         if (count > 0) {
             return true;
         }

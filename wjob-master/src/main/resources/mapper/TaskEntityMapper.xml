@@ -188,7 +188,7 @@
         <include refid="ScheduledTask"/>
         FROM scheduled_task
         WHERE del_flag=0
-        AND triggerGroup=#{triggerGroup,jdbcType=VARCHAR}
+        AND trigger_group=#{triggerGroup,jdbcType=VARCHAR}
         <if test="jobStatus !=null and jobStatus!= -1">
             AND job_status =#{jobStatus,jdbcType=TINYINT}
         </if>

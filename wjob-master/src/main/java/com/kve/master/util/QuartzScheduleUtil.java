@@ -4,21 +4,27 @@ import com.kve.master.bean.TaskBean;
 import com.kve.master.bean.TaskEntity;
 import com.kve.master.config.ApplicationContextHelper;
 import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author: hujing39
  * @date: 2022-03-07
  */
-
+@Component
 public class QuartzScheduleUtil{
     private static Logger log = LoggerFactory.getLogger(QuartzScheduleUtil.class);
     private static Scheduler scheduler;
 
-    QuartzScheduleUtil() {
-        this.scheduler = ApplicationContextHelper.getBean("Scheduler");
+    @Autowired
+    public void setScheduler(Scheduler scheduler) {
+        QuartzScheduleUtil.scheduler = scheduler;
     }
 
     public static void startJob(TaskEntity taskEntity) throws Exception{
@@ -26,6 +32,7 @@ public class QuartzScheduleUtil{
 
         try {
             //Job-----
+            log.info("scheduler", scheduler);
             JobKey jobKey = JobKey.jobKey(taskEntity.getTargetMethod(), taskEntity.getTargetClass());
             JobDetail job = scheduler.getJobDetail(jobKey);
             //任务调度实体不存在

@@ -7,7 +7,7 @@ import java.util.List;
  * 分页工具类
  *
  */
-public class JobAdminPageUtils {
+public class PageUtils {
 
     /**
      * 默认第一页

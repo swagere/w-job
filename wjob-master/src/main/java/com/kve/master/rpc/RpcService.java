@@ -15,7 +15,7 @@ import java.util.List;
  * @date: 2022-03-16
  */
 
-@Service
+//@Service
 public class RpcService {
     private static List<QuartzService> workerList = new ArrayList<QuartzService>();
 
@@ -24,9 +24,9 @@ public class RpcService {
         String hostList = PropertyRead.getKey("hostList");
         String[] hosts = hostList.split(",");
         for (String host : hosts) {
-            QuartzService service = RpcClient.getRemoteProxyObj(QuartzService.class,
-                    new InetSocketAddress(host, 9000));
-            workerList.add(service);
+//            QuartzService service = RpcClient.getRemoteProxyObj(QuartzService.class,
+//                    new InetSocketAddress(host, 9000));
+//            workerList.add(service);
         }
     }
 

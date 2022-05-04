@@ -14,6 +14,8 @@ public class TaskPageParam implements Serializable {
 
     private Integer page;
 
+    private String triggerGroup;
+
     private Integer limit;
 
     private String targetNameLike;

@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication(scanBasePackages ={"com.kve.common","com.kve.master"})
-@MapperScan(basePackages = {"com.kve.common"})
+@MapperScan(basePackages = {"com.kve.master.mapper"})
 class  WjobMasterApplication {
 
 	public static void main(String[] args) {

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kve.master.mapper.UserInfoMapper">
+
+    <resultMap type="com.kve.master.bean.UserInfo" id="BaseResultMap">
+        <result property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="userType" column="user_type"/>
+        <result property="userStatus" column="user_status"/>
+        <result property="menus" column="menus"/>
+        <result property="remarks" column="remarks"/>
+        <result property="functions" column="functions"/>
+        <result property="lastRunTimestamp" column="last_run_timestamp"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createName" column="create_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateName" column="update_name"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="ScheduledUser">
+        id, username, password, user_type,user_status,menus,functions,remarks,
+        last_run_timestamp, create_by,create_name, create_time,
+        update_by,update_name,
+        update_time, del_flag
+    </sql>
+
+    <select id="findByUserName" parameterType="java.util.Map"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="ScheduledUser"/>
+        FROM scheduled_user
+        WHERE del_flag=0 AND username=#{username,jdbcType=INTEGER}
+        LIMIT 1
+    </select>
+
+    <update id="updateById" parameterType="com.kve.master.bean.UserInfo">
+        UPDATE scheduled_user
+        <set>
+            <if test="username!=null">
+                username=#{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password!=null">
+                password=#{password,jdbcType=VARCHAR},
+            </if>
+            <if test="userType!=null">
+                user_type=#{userType,jdbcType=TINYINT},
+            </if>
+            <if test="userStatus!=null">
+                user_status=#{userStatus,jdbcType=TINYINT},
+            </if>
+            <if test="menus!=null">
+                menus=#{menus,jdbcType=VARCHAR},
+            </if>
+            <if test="functions!=null">
+                functions=#{functions,jdbcType=VARCHAR},
+            </if>
+            <if test="remarks!=null">
+                remarks=#{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="lastRunTimestamp!=null">
+                last_run_timestamp=#{lastRunTimestamp,jdbcType=BIGINT},
+            </if>
+            <if test="updateBy!=null">
+                update_by=#{updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateName!=null">
+                update_name=#{updateName,jdbcType=VARCHAR},
+            </if>
+            <if test="delFlag!=null">
+                del_flag=#{delFlag,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE del_flag=0 AND id=#{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="findById" parameterType="java.util.Map"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="ScheduledUser"/>
+        FROM scheduled_user
+        WHERE del_flag=0 AND id=#{id,jdbcType=INTEGER}
+        LIMIT 1
+    </select>
+
+    <select id="listPageByCondition" parameterType="com.kve.master.bean.UserInfo"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="ScheduledUser"/>
+        FROM scheduled_user
+        WHERE del_flag=0
+        <if test="userStatus !=null and userStatus!=-1 ">
+            AND user_status=#{userStatus,jdbcType=INTEGER}
+        </if>
+        <if test="userType !=null and userType!=-1 ">
+            AND user_type=#{userType,jdbcType=INTEGER}
+        </if>
+        <if test="usernameLike !=null and usernameLike!='' ">
+            AND username LIKE CONCAT('%',#{usernameLike,jdbcType=VARCHAR},'%')
+        </if>
+        LIMIT #{limit},#{pageSize}
+    </select>
+</mapper>

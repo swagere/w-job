@@ -1,6 +1,6 @@
 package com.kve.master.service;
 
-import com.kve.master.bean.TaskEntity;
+import com.kve.master.bean.TaskInfo;
 import com.kve.master.bean.param.TaskPageParam;
 import com.kve.master.bean.param.TaskParam;
 import com.kve.master.bean.vo.TaskPageVO;
@@ -15,7 +15,7 @@ public interface TaskService {
 
     TaskPageVO listPageTask(TaskPageParam taskParam) throws Exception;
 
-    TaskEntity getJobDetail(TaskParam taskParam) throws Exception;
+    TaskInfo getJobDetail(TaskParam taskParam) throws Exception;
 
     void startJob(TaskParam taskParam) throws Exception;
 

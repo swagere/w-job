@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskEntity extends BaseEntity implements Serializable {
+public class TaskInfo extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

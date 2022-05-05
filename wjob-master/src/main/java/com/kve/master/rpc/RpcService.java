@@ -1,12 +1,9 @@
 package com.kve.master.rpc;
 
-import com.kve.master.bean.TaskEntity;
-import com.kve.master.rpc.RpcClient;
+import com.kve.master.bean.TaskInfo;
 import com.kve.master.util.PropertyRead;
 import org.quartz.ee.jmx.jboss.QuartzService;
-import org.springframework.stereotype.Service;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,21 +27,21 @@ public class RpcService {
         }
     }
 
-    public static void startJob(TaskEntity taskEntity) throws Exception {
+    public static void startJob(TaskInfo taskInfo) throws Exception {
         for (QuartzService worker : workerList) {
-//            worker.startJob(taskEntity); //调用远程服务
+//            worker.startJob(taskInfo); //调用远程服务
         }
     }
 
-    public static void pauseJob(TaskEntity taskEntity) throws Exception {
+    public static void pauseJob(TaskInfo taskInfo) throws Exception {
         for (QuartzService worker : workerList) {
-//            worker.pauseJob(taskEntity);
+//            worker.pauseJob(taskInfo);
         }
     }
 
-    public static void resumeJob(TaskEntity taskEntity) throws Exception {
+    public static void resumeJob(TaskInfo taskInfo) throws Exception {
         for (QuartzService worker : workerList) {
-//            worker.startJob(taskEntity);
+//            worker.startJob(taskInfo);
         }
     }
 }

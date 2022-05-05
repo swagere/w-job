@@ -1,6 +1,6 @@
 package com.kve.master.mapper;
 
-import com.kve.master.bean.TaskEntity;
+import com.kve.master.bean.TaskInfo;
 import com.kve.master.bean.dto.TaskPageQueryDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -13,11 +13,11 @@ import java.util.List;
  */
 
 @Repository
-public interface TaskEntityMapper {
+public interface TaskInfoMapper {
     /**
      * 更新任务
      */
-    void updateById(TaskEntity task);
+    void updateById(TaskInfo task);
 
     /**
      * trigger组和名称相同的任务
@@ -27,12 +27,12 @@ public interface TaskEntityMapper {
     /**
      * 新增task
      */
-    void addTask(TaskEntity task);
+    void addTask(TaskInfo task);
 
     /**
      * 根据ID查询任务
      */
-    TaskEntity findById(@Param("id") Integer id);
+    TaskInfo findById(@Param("id") Integer id);
 
     /**
      * 删除任务
@@ -42,6 +42,12 @@ public interface TaskEntityMapper {
     /**
      * 根据条件分页查询任务
      */
-    List<TaskEntity> listPageByCondition(TaskPageQueryDTO taskPageQueryDTO);
+    List<TaskInfo> listPageByCondition(TaskPageQueryDTO taskPageQueryDTO);
+
+    /**
+     * 状态统计
+     */
+    int countByStatus(@Param("jobStatus") Integer jobStatus);
+
 
 }

@@ -1,5 +1,6 @@
 package com.kve.master.service.impl;
 
+import com.kve.master.bean.TaskInfo;
 import com.kve.master.bean.dto.TaskPageQueryDTO;
 import com.kve.master.bean.enums.TaskStatusEnum;
 import com.kve.master.bean.param.TaskPageParam;
@@ -9,8 +10,7 @@ import com.kve.master.config.ApplicationContextHelper;
 import com.kve.master.service.TaskService;
 import com.kve.master.util.PageUtils;
 import com.kve.master.util.ParamUtil;
-import com.kve.master.mapper.TaskEntityMapper;
-import com.kve.master.bean.TaskEntity;
+import com.kve.master.mapper.TaskInfoMapper;
 import com.kve.master.util.QuartzScheduleUtil;
 import org.quartz.*;
 import org.slf4j.Logger;
@@ -21,8 +21,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
     private Scheduler scheduler;
 
     @Autowired
-    private TaskEntityMapper taskEntityMapper;
+    private TaskInfoMapper taskInfoMapper;
 
     /**
      * 新增任务
@@ -64,11 +62,11 @@ public class TaskServiceImpl implements TaskService {
                 throw new Exception("任务已经被创建，请使用不同的应用名称或任务名称");
             }
 
-            TaskEntity taskEntity = buildTaskEntity(taskParam);
+            TaskInfo taskInfo = buildTaskEntity(taskParam);
 
             //数据持久化
-            taskEntity.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
-            taskEntityMapper.addTask(taskEntity);
+            taskInfo.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
+            taskInfoMapper.addTask(taskInfo);
 
             log.info("TaskService>> saveTask end; id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
         } finally {
@@ -89,20 +87,20 @@ public class TaskServiceImpl implements TaskService {
             throw new Exception("时间表达式校验失败");
         }
 
-        TaskEntity oldTaskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (oldTaskEntity == null) {
+        TaskInfo oldTaskInfo = taskInfoMapper.findById(taskParam.getJobId());
+        if (oldTaskInfo == null) {
             throw new Exception("任务不存在");
         }
 
-        if (oldTaskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
+        if (oldTaskInfo.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
             throw new Exception("任务正在执行，无法直接修改");
         }
 
-        TaskEntity taskEntity = buildTaskEntity(taskParam);
+        TaskInfo taskInfo = buildTaskEntity(taskParam);
 
         //数据持久化
-        taskEntity.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
-        taskEntityMapper.updateById(taskEntity);
+        taskInfo.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
+        taskInfoMapper.updateById(taskInfo);
 
         log.info("TaskService>> updateTask end; id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
     }
@@ -112,16 +110,16 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void deleteJob(TaskParam taskParam) throws Exception {
-        TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (taskEntity == null) {
+        TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getJobId());
+        if (taskInfo == null) {
             throw new Exception("任务不存在，无法执行删除操作");
         }
 
-        if (taskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
+        if (taskInfo.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
             throw new Exception("任务正在执行，无法直接删除");
         }
 
-        taskEntityMapper.removeById(taskEntity.getId(), taskEntity.getUpdateBy(), taskEntity.getUpdateName());
+        taskInfoMapper.removeById(taskInfo.getId(), taskInfo.getUpdateBy(), taskInfo.getUpdateName());
 
         log.info("TaskService>> deleteTask end; id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
     }
@@ -141,7 +139,7 @@ public class TaskServiceImpl implements TaskService {
                 .jobStatus(taskPageParam.getJobStatus())
                 .build();
 
-        List<TaskEntity> taskList = taskEntityMapper.listPageByCondition(pageQueryDTO);
+        List<TaskInfo> taskList = taskInfoMapper.listPageByCondition(pageQueryDTO);
         if (CollectionUtils.isEmpty(taskList) || taskList.size() <= 0) {
             return TaskPageVO.initDefault();
         }
@@ -153,13 +151,13 @@ public class TaskServiceImpl implements TaskService {
      * 获取任务详情
      */
     @Override
-    public TaskEntity getJobDetail(TaskParam taskParam) throws Exception {
-        TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (taskEntity == null) {
+    public TaskInfo getJobDetail(TaskParam taskParam) throws Exception {
+        TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getJobId());
+        if (taskInfo == null) {
             throw new Exception("任务不存在");
         }
 
-        return taskEntity;
+        return taskInfo;
     }
 
     /**
@@ -170,33 +168,33 @@ public class TaskServiceImpl implements TaskService {
 //        reentrantLock.lock();
         try {
             //查询任务是否存在
-            TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
+            TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getJobId());
 
-            if (taskEntity == null) {
+            if (taskInfo == null) {
                 throw new Exception("任务不存在");
             }
 
             //校验任务是否已启动
             // TODO: 2022/5/2 任务已启动不能仅仅判断其trigger是否存在 
-            if (!taskEntity.getJobStatus().equals(TaskStatusEnum.CREATE.getValue()) && isStart(taskEntity)) {
+            if (!taskInfo.getJobStatus().equals(TaskStatusEnum.CREATE.getValue()) && isStart(taskInfo)) {
                 throw new Exception("任务已启动");
             }
 
             //时间表达式校验
-            if (!CronExpression.isValidExpression(taskEntity.getCronExpression())) {
+            if (!CronExpression.isValidExpression(taskInfo.getCronExpression())) {
                 throw new Exception("时间表达式校验失败");
             }
 
             //类、方法存在校验
-            checkBeanAndMethodExists(taskEntity.getTargetClass(), taskEntity.getTargetMethod(), taskEntity.getTargetArguments());
+            checkBeanAndMethodExists(taskInfo.getTargetClass(), taskInfo.getTargetMethod(), taskInfo.getTargetArguments());
 
-            QuartzScheduleUtil.startJob(taskEntity);
+            QuartzScheduleUtil.startJob(taskInfo);
 
             //更新任务状态
-            TaskEntity task = new TaskEntity();
-            task.setId(taskEntity.getId());
-            taskEntity.setJobStatus(TaskStatusEnum.RUNNING.getValue());
-            taskEntityMapper.updateById(taskEntity);
+            TaskInfo task = new TaskInfo();
+            task.setId(taskInfo.getId());
+            taskInfo.setJobStatus(TaskStatusEnum.RUNNING.getValue());
+            taskInfoMapper.updateById(taskInfo);
 
             log.info("TaskService >> startJob end; id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
         } finally {
@@ -210,23 +208,23 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void pauseJob(TaskParam taskParam) throws Exception {
-        TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (!existTask(taskEntity.getTriggerName(), taskEntity.getTriggerGroup())) {
+        TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getJobId());
+        if (!existTask(taskInfo.getTriggerName(), taskInfo.getTriggerGroup())) {
             throw new Exception("任务不存在");
         }
 
         //判断任务状态 校验任务是否已结束
-        if (taskEntity.getJobStatus().equals(TaskStatusEnum.FINISH_SUCCESS.getValue()) || taskEntity.getJobStatus().equals(TaskStatusEnum.FINISH_EXCEPTION.getValue())) {
+        if (taskInfo.getJobStatus().equals(TaskStatusEnum.FINISH_SUCCESS.getValue()) || taskInfo.getJobStatus().equals(TaskStatusEnum.FINISH_EXCEPTION.getValue())) {
             throw new Exception("任务执行结束，无法执行暂停操作");
         }
 
-        QuartzScheduleUtil.pauseJob(taskEntity);
+        QuartzScheduleUtil.pauseJob(taskInfo);
 
         //更新任务状态
-        TaskEntity task = new TaskEntity();
-        task.setId(taskEntity.getId());
-        taskEntity.setJobStatus(TaskStatusEnum.PAUSE.getValue());
-        taskEntityMapper.updateById(taskEntity);
+        TaskInfo task = new TaskInfo();
+        task.setId(taskInfo.getId());
+        taskInfo.setJobStatus(TaskStatusEnum.PAUSE.getValue());
+        taskInfoMapper.updateById(taskInfo);
 
         log.info("TaskService >> pauseJob end; id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
     }
@@ -236,23 +234,23 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void resumeJob(TaskParam taskParam) throws Exception {
-        TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (!existTask(taskEntity.getTriggerName(), taskEntity.getTriggerGroup())) {
+        TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getJobId());
+        if (!existTask(taskInfo.getTriggerName(), taskInfo.getTriggerGroup())) {
             throw new Exception("任务不存在");
         }
 
         //判断任务状态 校验任务处于暂停/未开始状态
-        if (taskEntity.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
+        if (taskInfo.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
             throw new Exception("任务正在执行中，无法执行恢复操作");
         }
 
-        QuartzScheduleUtil.resumeJob(taskEntity);
+        QuartzScheduleUtil.resumeJob(taskInfo);
 
         //更新任务状态
-        TaskEntity task = new TaskEntity();
-        task.setId(taskEntity.getId());
-        taskEntity.setJobStatus(TaskStatusEnum.RUNNING.getValue());
-        taskEntityMapper.updateById(taskEntity);
+        TaskInfo task = new TaskInfo();
+        task.setId(taskInfo.getId());
+        taskInfo.setJobStatus(TaskStatusEnum.RUNNING.getValue());
+        taskInfoMapper.updateById(taskInfo);
 
         log.info("TaskService >> resumeJob end; id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
     }
@@ -262,18 +260,18 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void stopJob(TaskParam taskParam) throws Exception {
-        TaskEntity taskEntity = taskEntityMapper.findById(taskParam.getJobId());
-        if (taskEntity == null) {
+        TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getJobId());
+        if (taskInfo == null) {
             throw new Exception("任务不存在");
         }
 
-        QuartzScheduleUtil.stopJob(taskEntity);
+        QuartzScheduleUtil.stopJob(taskInfo);
 
         //更新任务状态
-        TaskEntity task = new TaskEntity();
-        task.setId(taskEntity.getId());
-        taskEntity.setJobStatus(TaskStatusEnum.FINISH_EXCEPTION.getValue());
-        taskEntityMapper.updateById(taskEntity);
+        TaskInfo task = new TaskInfo();
+        task.setId(taskInfo.getId());
+        taskInfo.setJobStatus(TaskStatusEnum.FINISH_EXCEPTION.getValue());
+        taskInfoMapper.updateById(taskInfo);
 
         log.info("TaskService >> stopJob end; id:{},operate:{}", taskParam.getJobId(), taskParam.getOperateName());
     }
@@ -282,21 +280,21 @@ public class TaskServiceImpl implements TaskService {
     /**
      * 构建TaskEntity任务参数
      */
-    private TaskEntity buildTaskEntity(TaskParam taskParam) {
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setTargetClass(taskParam.getTargetClass());
-        taskEntity.setTargetMethod(taskParam.getTargetMethod());
-        taskEntity.setTriggerGroup(taskParam.getTriggerGroup());
-        taskEntity.setTriggerName(taskParam.getTriggerName());
-        taskEntity.setCronExpression(taskParam.getCronExpression());
-        taskEntity.setDescription(taskParam.getDescription());
-        taskEntity.setTargetArguments(taskParam.getTargetArguments());
+    private TaskInfo buildTaskEntity(TaskParam taskParam) {
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setTargetClass(taskParam.getTargetClass());
+        taskInfo.setTargetMethod(taskParam.getTargetMethod());
+        taskInfo.setTriggerGroup(taskParam.getTriggerGroup());
+        taskInfo.setTriggerName(taskParam.getTriggerName());
+        taskInfo.setCronExpression(taskParam.getCronExpression());
+        taskInfo.setDescription(taskParam.getDescription());
+        taskInfo.setTargetArguments(taskParam.getTargetArguments());
 
-//        taskEntity.setCreateBy(jobSaveBO.getOperateBy());
-//        taskEntity.setCreateName(jobSaveBO.getOperateName());
-//        taskEntity.setUpdateBy(jobSaveBO.getOperateBy());
-//        taskEntity.setUpdateName(jobSaveBO.getOperateName());
-        return taskEntity;
+//        taskInfo.setCreateBy(jobSaveBO.getOperateBy());
+//        taskInfo.setCreateName(jobSaveBO.getOperateName());
+//        taskInfo.setUpdateBy(jobSaveBO.getOperateBy());
+//        taskInfo.setUpdateName(jobSaveBO.getOperateName());
+        return taskInfo;
     }
 
     /**
@@ -332,7 +330,7 @@ public class TaskServiceImpl implements TaskService {
             return true;
         }
 
-        int count = taskEntityMapper.countByTriggerDetail(triggerGroup, triggerName);
+        int count = taskInfoMapper.countByTriggerDetail(triggerGroup, triggerName);
         if (count > 0) {
             return true;
         }
@@ -342,15 +340,15 @@ public class TaskServiceImpl implements TaskService {
     /**
      * 任务是否已经启动
      */
-    public boolean isStart(TaskEntity taskEntity) {
-        TriggerKey triggerKey = TriggerKey.triggerKey(taskEntity.getTriggerName(),
-                taskEntity.getTriggerGroup());
+    public boolean isStart(TaskInfo taskInfo) {
+        TriggerKey triggerKey = TriggerKey.triggerKey(taskInfo.getTriggerName(),
+                taskInfo.getTriggerGroup());
         try {
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
             return (null != trigger);
         } catch (Exception e) {
-            log.info("[ TaskService ] >> isStart exception triggerName:{},triggerGroup:{}", taskEntity.getTriggerName(),
-                    taskEntity.getTriggerGroup(), e);
+            log.info("[ TaskService ] >> isStart exception triggerName:{},triggerGroup:{}", taskInfo.getTriggerName(),
+                    taskInfo.getTriggerGroup(), e);
             return false;
         }
     }

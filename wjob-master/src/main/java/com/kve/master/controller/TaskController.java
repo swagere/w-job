@@ -1,6 +1,6 @@
 package com.kve.master.controller;
 
-import com.kve.master.bean.TaskEntity;
+import com.kve.master.bean.TaskInfo;
 import com.kve.master.bean.param.TaskPageParam;
 import com.kve.master.bean.param.TaskParam;
 import com.kve.master.bean.vo.TaskPageVO;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/job-admin/task")
 public class TaskController {
     @Autowired
     private TaskService taskService;
@@ -100,8 +100,8 @@ public class TaskController {
     @ResponseBody
     public Boolean getJob(@RequestBody TaskParam taskParam) {
         try {
-            TaskEntity taskEntity = taskService.getJobDetail(taskParam);
-            System.out.println(taskEntity);
+            TaskInfo taskInfo = taskService.getJobDetail(taskParam);
+            System.out.println(taskInfo);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

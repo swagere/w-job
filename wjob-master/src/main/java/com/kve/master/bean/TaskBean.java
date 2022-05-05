@@ -1,7 +1,7 @@
 package com.kve.master.bean;
 
 import com.kve.master.config.ApplicationContextHelper;
-import com.kve.master.mapper.TaskEntityMapper;
+import com.kve.master.mapper.TaskInfoMapper;
 import com.kve.master.util.ParamUtil;
 import com.kve.master.util.RandomUtils;
 import org.quartz.*;
@@ -74,12 +74,12 @@ public class TaskBean implements Job {
 
     private void updateAfterRun(Integer jobId) {
         try {
-            TaskEntityMapper taskEntityMapper = ApplicationContextHelper.getApplicationContext().getBean(TaskEntityMapper.class);
+            TaskInfoMapper taskInfoMapper = ApplicationContextHelper.getApplicationContext().getBean(TaskInfoMapper.class);
             //更新最后执行时间
-            TaskEntity task = new TaskEntity();
+            TaskInfo task = new TaskInfo();
             task.setId(jobId);
             task.setLastRunTimestamp(System.currentTimeMillis());
-            taskEntityMapper.updateById(task);
+            taskInfoMapper.updateById(task);
         } catch (Exception e) {
             log.error("[ JobDetail ] >> job updateAfterRun exception jobId:{} , projectKey:{} ", jobId, e);
         }

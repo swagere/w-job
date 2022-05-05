@@ -1,7 +1,7 @@
 package com.kve.master.bean.vo;
 
 
-import com.kve.master.bean.TaskEntity;
+import com.kve.master.bean.TaskInfo;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,7 +15,7 @@ public class TaskPageVO implements Serializable {
 
     private Integer total;
 
-    private List<TaskEntity> list;
+    private List<TaskInfo> list;
 
     public static TaskPageVO initDefault() {
         TaskPageVO result = new TaskPageVO();
@@ -27,7 +27,7 @@ public class TaskPageVO implements Serializable {
     public TaskPageVO() {
     }
 
-    public TaskPageVO(Integer total, List<TaskEntity> list) {
+    public TaskPageVO(Integer total, List<TaskInfo> list) {
         this.total = total;
         this.list = list;
     }

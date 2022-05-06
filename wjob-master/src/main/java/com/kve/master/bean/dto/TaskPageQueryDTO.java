@@ -19,9 +19,11 @@ public class TaskPageQueryDTO implements Serializable {
 
     private Integer pageSize;
 
-    private String triggerGroup;
-    
-    private String targetNameLike;
+    private String triggerGroupLike;
+
+    private String triggerNameLike;
+
+    private String targetClassLike;
 
     private String targetMethodLike;
 

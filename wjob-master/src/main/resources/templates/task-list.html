@@ -32,20 +32,33 @@
                 <div class="layui-card-body ">
                     <form class="layui-form layui-col-space5">
                         <div class="layui-inline layui-show-xs-block">
-                            <input type="text" name="jobNameLike" id="jobNameLike" placeholder="请输入任务类名"
+                            <input type="text" name="triggerGroupLike" id="triggerGroupLike" placeholder="请输入任务组"
                                    autocomplete="off"
                                    class="layui-input">
                         </div>
                         <div class="layui-inline layui-show-xs-block">
-                            <input type="text" name="jobMethodLike" id="jobMethodLike" placeholder="请输入任务方法名"
+                            <input type="text" name="triggerNameLike" id="triggerNameLike" placeholder="请输入任务名"
+                                   autocomplete="off"
+                                   class="layui-input">
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <input type="text" name="targetClassLike" id="targetClassLike" placeholder="请输入目标类名"
+                                   autocomplete="off"
+                                   class="layui-input">
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <input type="text" name="targetMethodLike" id="targetMethodLike" placeholder="请输入目标方法名"
                                    autocomplete="off"
                                    class="layui-input">
                         </div>
                         <div class="layui-inline layui-show-xs-block">
                             <select name="jobStatus" id="jobStatus" lay-verify="">
                                 <option value="-1" selected>请选择任务状态</option>
-                                <option value="1">已启用</option>
-                                <option value="2">已停止</option>
+                                <option value="1">已创建</option>
+                                <option value="2">正在运行</option>
+                                <option value="3">已暂停</option>
+                                <option value="4">已完成</option>
+                                <option value="5">已中断或异常</option>
                             </select>
                         </div>
                         <div class="layui-inline layui-show-xs-block">
@@ -62,7 +75,7 @@
                     &nbsp;&nbsp;
                     <span style="color: red" th:text="${prompt}"></span>
                 </div>
-                <div class="layui-card-body ">
+                <div class="layui-card-body">
                     <table class="layui-table"
                            id="taskList" lay-filter="currentTableFilter">
                     </table>
@@ -92,18 +105,19 @@
             }
             , cols: [
                 [ //表头
-                    {field: 'id', title: '任务ID', width: 100, fixed: 'left'},
-                    {field: 'jobClass', title: '任务类', width: 160},
-                    {field: 'jobMethod', title: '任务方法', width: 160},
-                    {field: 'jobArguments', title: '任务参数', width: 150},
-                    {field: 'jobGroup', title: '任务组', width: 85},
-                    {field: 'jobName', title: '任务名称', width: 160},
-                    {field: 'jobStatus', title: '任务状态', width: 105, templet: statusTpl},
-                    {field: 'cronExpression', title: '时间表达式', width: 180},
+                    {field: 'id', title: 'ID', width: 50, fixed: 'left'},
+                    {field: 'triggerGroup', title: '任务组', width: 85},
+                    {field: 'triggerName', title: '任务名', width: 85},
+                    {field: 'targetClass', title: '目标类', width: 85},
+                    {field: 'targetMethod', title: '目标方法', width: 85},
+                    {field: 'targetArguments', title: '目标方法参数', width: 135},
+                    {field: 'jobStatus', title: '任务状态', width: 135, templet: statusTpl},
+                    {field: 'cronExpression', title: '时间表达式', width: 135},
                     {field: 'description', title: '任务描述', width: 135},
                     {field: 'lastRunTime', width: 150, title: '最后执行完成时间'},
                     {field: 'createTime', width: 150, title: '创建时间'},
                     {field: 'updateTime', width: 150, title: '更新时间'},
+                    {field: '', title: '调度', fixed: 'right', width: 250, toolbar:'#scheduleBar'},
                     {field: '', title: '操作', fixed: 'right', width: 100, templet: '#currentTableBar'}
                 ]
             ],
@@ -119,9 +133,11 @@
                     curr: 1
                 }
                 , where: {
-                    jobNameLike: $("#jobNameLike").val(),
+                    triggerGroupLike: $("#triggerGroupLike").val(),
+                    triggerNameLike: $("#triggerNameLike").val(),
                     jobStatus: $("#jobStatus").val(),
-                    jobMethodLike: $("#jobMethodLike").val(),
+                    targetClassLike: $("#targetClassLike").val(),
+                    targetMethodLike: $("#targetMethodLike").val(),
                 }
             }, 'data');
             return false;
@@ -136,9 +152,9 @@
         table.on('tool(currentTableFilter)', function (obj) {
                 const data = obj.data;
                 if (obj.event === 'edit') {
-                    xadmin.open('编辑任务', api.job.detailHtml + '?id=' + data.id, 800, 600);
+                    xadmin.open('编辑任务', api.job.detailHtml + '?id=' + data.id, 800, 400);
                 } else if (obj.event === 'delete') {
-                    layer.confirm('确定删除[' + data.jobClass + '.' + data.jobMethod + ']？', {
+                    layer.confirm('确定删除[' + data.triggerGroup + '.' + data.triggerName + ']？', {
                         btn: ['确定', '取消']
                     }, function () {
                         AjaxRequest.aPost(api.job.delete, JSON.stringify({id: data.id}), function (r) {
@@ -156,98 +172,124 @@
                         });
                     });
                 } else if (obj.event === 'copy') {
-                    xadmin.open('新增任务', api.job.addHtml + '?id=' + data.id, 800, 600);
+                    xadmin.open('新增任务', api.job.addHtml + '?id=' + data.id, 800, 400);
+                } else if (obj.event === 'start') {
+                    //启动任务
+                    AjaxRequest.aPost(api.job.start, JSON.stringify({id: data.id}), function (r) {
+                        if (r.code === 0) {
+                            ResponseMsg.successMsg('任务已启动');
+                            layui.table.reload('taskList');
+                        } else {
+                            if (r.msg !== '') {
+                                ResponseMsg.errorMsg('任务启动失败，' + r.msg, 3000);
+                            } else {
+                                ResponseMsg.errorMsg('任务启动失败，请重试。');
+                            }
+                            form.render();
+                            layui.table.reload('taskList');
+                        }
+                    });
+                } else if (obj.event === 'pause') {
+                    //暂停任务
+                    AjaxRequest.aPost(api.job.pause, JSON.stringify({id: data.id}), function (r) {
+                        if (r.code === 0) {
+                            ResponseMsg.successMsg('任务已暂停');
+                            layui.table.reload('taskList');
+                        } else {
+                            if (r.msg !== '') {
+                                ResponseMsg.errorMsg('任务暂停失败，' + r.msg, 3000);
+                            } else {
+                                ResponseMsg.errorMsg('任务暂停失败，请重试。');
+                            }
+                            form.render();
+                            layui.table.reload('taskList');
+                        }
+                    });
+                } else if (obj.event === 'resume') {
+                    //恢复任务
+                    AjaxRequest.aPost(api.job.resume, JSON.stringify({id: data.id}), function (r) {
+                        if (r.code === 0) {
+                            ResponseMsg.successMsg('任务已恢复');
+                            layui.table.reload('taskList');
+                        } else {
+                            if (r.msg !== '') {
+                                ResponseMsg.errorMsg('任务恢复失败，' + r.msg, 3000);
+                            } else {
+                                ResponseMsg.errorMsg('任务恢复失败，请重试。');
+                            }
+                            form.render();
+                            layui.table.reload('taskList');
+                        }
+                    });
+                } else if (obj.event === 'stop') {
+                    //停止任务
+                    AjaxRequest.aPost(api.job.stop, JSON.stringify({id: data.id}), function (r) {
+                        if (r.code === 0) {
+                            ResponseMsg.successMsg('任务已停止');
+                            layui.table.reload('taskList');
+                        } else {
+                            if (r.msg !== null && r.msg !== '') {
+                                ResponseMsg.errorMsg('任务停止失败，' + r.msg, 3000);
+                            } else {
+                                ResponseMsg.errorMsg('任务停止失败，请重试。');
+                            }
+                            form.render();
+                            layui.table.reload('taskList');
+                        }
+                    });
                 }
             }
         );
-
-        //监听状态变更提交
-        form.on('switch(switchJobStatus)', function (data) {
-            const x = data.elem.checked;
-            let content;
-            if (x) {
-                content = "确认启动任务？";
-            } else {
-                content = "确认关闭任务？";
-            }
-            layer.open({
-                content: content
-                , btn: ['确定', '取消']
-                , yes: function (index, layero) {
-                    data.elem.checked = x;
-                    form.render();
-                    layer.close(index);
-                    //按钮【按钮一】的回调
-                    if (x) {
-                        //启动任务
-                        AjaxRequest.aPost(api.job.start, JSON.stringify({id: data.value}), function (r) {
-                            if (r.code === 0) {
-                                layer.msg('任务已启动', {offset: '6px'});
-                                layui.table.reload('taskList');
-                            } else {
-                                if (r.msg !== '') {
-                                    ResponseMsg.errorMsg('任务启动失败，' + r.msg, 3000);
-                                } else {
-                                    ResponseMsg.errorMsg('任务启动失败，请重试。');
-                                }
-                                data.elem.checked = !x;
-                                form.render();
-                                layui.table.reload('taskList');
-                            }
-                        });
-                    } else {
-                        AjaxRequest.aPost(api.job.stop, JSON.stringify({id: data.value}), function (r) {
-                            if (r.code === 0) {
-                                // layer.msg('任务已停止', {offset: '6px'});
-                                ResponseMsg.successMsg('任务已停止')
-                                layui.table.reload('taskList');
-                            } else {
-                                if (r.msg !== null && r.msg !== '') {
-                                    ResponseMsg.errorMsg('任务停止失败，' + r.msg, 3000);
-                                } else {
-                                    ResponseMsg.errorMsg('任务停止失败，请重试。');
-                                }
-                                data.elem.checked = !x;
-                                form.render();
-                                layui.table.reload('taskList');
-                            }
-                        });
-                    }
-                }
-                , btn2: function (index, layero) {
-                    //按钮【按钮二】的回调
-                    data.elem.checked = !x;
-                    form.render();
-                    layer.close(index);
-                    //return false 开启该代码可禁止点击该按钮关闭
-                }
-                , cancel: function () {
-                    //右上角关闭回调
-                    data.elem.checked = !x;
-                    form.render();
-                    //return false 开启该代码可禁止点击该按钮关闭
-                }
-            });
-            return false;
-        });
     });
 
     //是否启用模板
+    // const statusTpl = function (d) {
+    // let isChecked = "";
+    // if (d.jobStatus === 1) {
+    //     isChecked = "checked";
+    // }
+    // return '<input type="checkbox" lay-skin="switch" value="' + d.id + '" lay-filter="switchJobStatus" lay-text="已启动|已停止" ' + isChecked + '> ';
+    // };
     const statusTpl = function (d) {
-        let isChecked = "";
         if (d.jobStatus === 1) {
-            isChecked = "checked";
+            return "创建";
         }
-        return '<input type="checkbox" lay-skin="switch" value="' + d.id + '" lay-filter="switchJobStatus" lay-text="已启动|已停止" ' + isChecked + '> ';
+        else if (d.jobStatus === 2) {
+            return "运行";
+        }
+        else if (d.jobStatus === 3) {
+            return "暂停";
+        }
+        else if (d.jobStatus === 4) {
+            return "任务执行完成";
+        }
+        else if (d.jobStatus === 5) {
+            return "中断/异常停止";
+        }
+        return "其他";
     };
 </script>
+
+<script type="text/html" id="scheduleBar">
+    <a class="layui-btn  layui-btn-xs" lay-event="start">启动</a>
+    <a class="layui-btn layui-btn-xs" lay-event="pause">暂停</a>
+    <a class="layui-btn layui-btn-xs" lay-event="resume">恢复</a>
+    <a class="layui-btn layui-btn-xs" lay-event="stop">停止</a>
+<!--    <a title="启动" href="javascript:;" lay-event="start"><i class="layui-icon" style="font-weight:bold;color:green;font-size:20px">&#xe652;</i></a>-->
+<!--    <a title="暂停" href="javascript:;" lay-event="pause"><i class="layui-icon" style="font-weight:bold;color:red;font-size:20px">&#xe651;</i></a>-->
+<!--    <a title="恢复" href="javascript:;" lay-event="resume"><i class="layui-icon" style="font-weight:bold;color:green;font-size:20px">&#xe669;</i></a>-->
+<!--    <a title="停止" href="javascript:;" lay-event="stop"><i class="layui-icon" style="font-weight:bold;color:black;font-size:20px">&#xe643;</i></a>-->
+</script>
+
+
+
 <script>
     layui.use([], function () {
         const $ = layui.jquery;
         const functionsKeys = getValueByCookie("COOKIE_USER_INFO", "functions");
         if (null !== functionsKeys && '' !== functionsKeys) {
             const functionsKeysArray = functionsKeys.split(",");
-            let operatePower = '';
+            let operatePower = '<a title="日志" href="javascript:;" lay-event="logDetail"><i class="layui-icon">&#xe63c;</i></a>';
             let hasAddPower = false;
             for (let j = 0; j < functionsKeysArray.length; j++) {
                 //添加

@@ -17,7 +17,7 @@ public interface TaskInfoMapper {
     /**
      * 更新任务
      */
-    void updateById(TaskInfo task);
+    void updateById(TaskInfo taskInfo);
 
     /**
      * trigger组和名称相同的任务
@@ -27,7 +27,7 @@ public interface TaskInfoMapper {
     /**
      * 新增task
      */
-    void addTask(TaskInfo task);
+    void addTask(TaskInfo taskInfo);
 
     /**
      * 根据ID查询任务

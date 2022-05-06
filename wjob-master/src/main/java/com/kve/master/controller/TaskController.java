@@ -1,15 +1,28 @@
 package com.kve.master.controller;
 
 import com.kve.master.bean.TaskInfo;
+import com.kve.master.bean.UserInfo;
+import com.kve.master.bean.base.BaseParam;
 import com.kve.master.bean.param.TaskPageParam;
 import com.kve.master.bean.param.TaskParam;
+import com.kve.master.bean.param.UserUpdateParam;
 import com.kve.master.bean.vo.TaskPageVO;
+import com.kve.master.bean.vo.UserInfoDetailVO;
+import com.kve.master.config.exception.WJobException;
+import com.kve.master.config.response.AjaxResponse;
+import com.kve.master.config.response.SysExceptionEnum;
 import com.kve.master.service.TaskService;
+import com.kve.master.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
 
 /**
  * @author: hujing39
@@ -19,8 +32,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/job-admin/task")
 public class TaskController {
+    /**
+     * cookie_key
+     */
+    public static final String COOKIE_USER_INFO = "COOKIE_USER_INFO";
+
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 创建任务
@@ -29,14 +50,10 @@ public class TaskController {
      */
     @RequestMapping("/createJob")
     @ResponseBody
-    public Boolean createJob(@RequestBody TaskParam taskParam) {
-        try {
-            taskService.saveTask(taskParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public AjaxResponse createJob(@RequestBody TaskParam taskParam, HttpServletRequest request) throws Exception {
+        buildOperate(taskParam, request);
+        taskService.saveTask(taskParam);
+        return AjaxResponse.success();
     }
 
     /**
@@ -46,14 +63,10 @@ public class TaskController {
      */
     @RequestMapping("/updateJob")
     @ResponseBody
-    public Boolean updateJob(@RequestBody TaskParam taskParam) {
-        try {
-            taskService.updateJob(taskParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public AjaxResponse updateJob(@RequestBody TaskParam taskParam, HttpServletRequest request) throws Exception {
+        buildOperate(taskParam, request);
+        taskService.updateJob(taskParam);
+        return AjaxResponse.success();
     }
 
     /**
@@ -63,14 +76,10 @@ public class TaskController {
      */
     @RequestMapping("/deleteJob")
     @ResponseBody
-    public Boolean deleteJob(@RequestBody TaskParam taskParam) {
-        try {
-            taskService.deleteJob(taskParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public AjaxResponse deleteJob(@RequestBody TaskParam taskParam, HttpServletRequest request) throws Exception {
+        buildOperate(taskParam, request);
+        taskService.deleteJob(taskParam);
+        return AjaxResponse.success();
     }
 
     /**
@@ -80,15 +89,11 @@ public class TaskController {
      */
     @RequestMapping("/listPage")
     @ResponseBody
-    public Boolean listPageTask(@RequestBody TaskPageParam taskPageParam) {
-        try {
-            TaskPageVO taskPageVO = taskService.listPageTask(taskPageParam);
-            System.out.println(taskPageVO);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public AjaxResponse listPageTask(TaskPageParam taskPageParam) throws Exception {
+        TaskPageVO taskPageVO = taskService.listPageTask(taskPageParam);
+        AjaxResponse ajaxResponse = AjaxResponse.success(taskPageVO.getList());
+        ajaxResponse.setCount(taskPageVO.getTotal());
+        return ajaxResponse;
     }
 
     /**
@@ -96,17 +101,11 @@ public class TaskController {
      * @param taskParam
      * @return
      */
-    @RequestMapping("/getJob")
+    @RequestMapping("/getJobDetail")
     @ResponseBody
-    public Boolean getJob(@RequestBody TaskParam taskParam) {
-        try {
-            TaskInfo taskInfo = taskService.getJobDetail(taskParam);
-            System.out.println(taskInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public AjaxResponse getJob(@RequestBody TaskParam taskParam) throws Exception {
+        TaskInfo taskInfo = taskService.getJobDetail(taskParam);
+        return AjaxResponse.success(taskInfo);
     }
 
     /**
@@ -117,14 +116,10 @@ public class TaskController {
      */
     @RequestMapping("/startJob")
     @ResponseBody
-    public Boolean startJob(@RequestBody TaskParam taskParam) {
-        try {
-            taskService.startJob(taskParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public AjaxResponse startJob(@RequestBody TaskParam taskParam, HttpServletRequest request) throws Exception {
+        buildOperate(taskParam, request);
+        taskService.startJob(taskParam);
+        return AjaxResponse.success();
     }
 
     /**
@@ -134,15 +129,10 @@ public class TaskController {
      */
     @RequestMapping("/pauseJob")
     @ResponseBody
-    private Boolean pauseJob(@RequestBody TaskParam taskParam){
-        try {
-            taskService.pauseJob(taskParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
+    private AjaxResponse pauseJob(@RequestBody TaskParam taskParam, HttpServletRequest request) throws Exception {
+        buildOperate(taskParam, request);
+        taskService.pauseJob(taskParam);
+        return AjaxResponse.success();
     }
 
     /**
@@ -152,15 +142,10 @@ public class TaskController {
      */
     @RequestMapping("/resumeJob")
     @ResponseBody
-    private Boolean resumeJob(@RequestBody TaskParam taskParam){
-        try {
-            taskService.resumeJob(taskParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
+    private AjaxResponse resumeJob(@RequestBody TaskParam taskParam, HttpServletRequest request) throws Exception {
+        buildOperate(taskParam, request);
+        taskService.resumeJob(taskParam);
+        return AjaxResponse.success();
     }
 
     /**
@@ -170,14 +155,30 @@ public class TaskController {
      */
     @RequestMapping("/stopJob")
     @ResponseBody
-    private Boolean stopJob(@RequestBody TaskParam taskParam){
-        try {
-            taskService.stopJob(taskParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    private AjaxResponse stopJob(@RequestBody TaskParam taskParam, HttpServletRequest request) throws Exception {
+        buildOperate(taskParam, request);
+        taskService.stopJob(taskParam);
+        return AjaxResponse.success();
+    }
+
+    private void buildOperate(BaseParam baseParam, HttpServletRequest request) {
+        //当前登录用户
+        Cookie[] cookies = request.getCookies();
+        String username = "";
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(COOKIE_USER_INFO)) {
+                username = URLDecoder.decode(cookie.getValue()).split(";")[1].substring(9);
+                break;
+            }
         }
 
-        return true;
+        UserInfoDetailVO currentUser = userService.getUserDetailByUsername(username);
+        if (null != currentUser) {
+            baseParam.setOperateBy(String.valueOf(currentUser.getId()));
+            baseParam.setOperateName(currentUser.getUsername());
+        }
+        else {
+            throw new WJobException(SysExceptionEnum.USER_NOT_EXIST);
+        }
     }
 }

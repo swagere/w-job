@@ -11,15 +11,17 @@ const api = {
 
     job: {
         homeCount: project_path_prefix + '/home/getHomeCount',
-        listPage: project_path_prefix + '/job/listPage',
+        listPage: project_path_prefix + '/task/listPage',
         detailHtml: project_path_prefix + '/page/task-detail',
-        detail: project_path_prefix + '/job/getJobDetail',
+        detail: project_path_prefix + '/task/getJobDetail',
         addHtml: project_path_prefix + '/page/task-add',
         add: project_path_prefix + '/task/createJob',
-        update: project_path_prefix + '/job/update',
-        start: project_path_prefix + '/job/start',
-        stop: project_path_prefix + '/job/stop',
-        delete: project_path_prefix + '/job/delete',
+        update: project_path_prefix + '/task/updateJob',
+        start: project_path_prefix + '/task/startJob',
+        stop: project_path_prefix + '/task/stopJob',
+        resume: project_path_prefix + '/task/resumeJob',
+        pause: project_path_prefix + '/task/pauseJob',
+        delete: project_path_prefix + '/task/deleteJob',
         taskCornHtml: project_path_prefix + '/page/task-corn',
     },
     job_log: {

@@ -1,12 +1,12 @@
 package com.kve.master.bean.param;
 
-import com.kve.master.bean.base.BaseOperate;
+import com.kve.master.bean.base.BaseParam;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class UserUpdateParam extends BaseOperate {
+public class UserUpdateParam extends BaseParam {
 
     /**
      * ID

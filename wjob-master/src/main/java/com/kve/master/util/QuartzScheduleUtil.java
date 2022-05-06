@@ -2,6 +2,8 @@ package com.kve.master.util;
 
 import com.kve.master.bean.TaskBean;
 import com.kve.master.bean.TaskInfo;
+import com.kve.master.config.exception.WJobException;
+import com.kve.master.config.response.SysExceptionEnum;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +74,7 @@ public class QuartzScheduleUtil{
         } catch (SchedulerException e) {
             log.info("[ QuartzScheduleUtil ] >> startJob exception; triggerName:{},triggerGroup:{}", taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup(), e);
-            throw new Exception("任务启动失败");
+            throw e;
         }
     }
 
@@ -86,7 +88,7 @@ public class QuartzScheduleUtil{
         } catch (SchedulerException e) {
             log.info("[ QuartzSchedulerUtil ] >> pause a task exception; triggerName:{},JobGroup:{}", taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup(), e);
-            throw new Exception("任务启动失败");
+            throw e;
         }
 
     }
@@ -101,7 +103,7 @@ public class QuartzScheduleUtil{
         } catch (SchedulerException e) {
             log.info("[ QuartzSchedulerUtil ] >> resume a task exception; triggerName:{},JobGroup:{}", taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup(), e);
-            throw new Exception("任务启动失败");
+            throw e;
         }
     }
 
@@ -116,7 +118,7 @@ public class QuartzScheduleUtil{
         } catch (SchedulerException e) {
             log.info("[ QuartzSchedulerUtil ] >> stop a task exception; triggerName:{},JobGroup:{}", taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup(), e);
-            throw new Exception("任务启动失败");
+            throw e;
         }
 
     }

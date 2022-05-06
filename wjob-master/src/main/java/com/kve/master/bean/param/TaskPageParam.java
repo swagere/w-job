@@ -14,11 +14,13 @@ public class TaskPageParam implements Serializable {
 
     private Integer page;
 
-    private String triggerGroup;
+    private String triggerGroupLike;
 
     private Integer limit;
 
-    private String targetNameLike;
+    private String triggerNameLike;
+
+    private String targetClassLike;
 
     private String targetMethodLike;
 

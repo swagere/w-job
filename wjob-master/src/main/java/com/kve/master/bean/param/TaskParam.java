@@ -17,7 +17,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskParam extends BaseParam {
-    private Integer jobId;
+    private Integer id;
 
     private String targetClass;
 

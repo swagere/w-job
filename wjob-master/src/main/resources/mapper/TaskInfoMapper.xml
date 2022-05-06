@@ -188,12 +188,17 @@
         <include refid="ScheduledTask"/>
         FROM scheduled_task
         WHERE del_flag=0
-        AND trigger_group=#{triggerGroup,jdbcType=VARCHAR}
+        <if test="triggerGroupLike !=null and triggerGroupLike!='' ">
+            AND trigger_group=#{triggerGroupLike,jdbcType=VARCHAR}
+        </if>
+        <if test="triggerNameLike !=null and triggerNameLike!='' ">
+            AND trigger_name=#{triggerNameLike,jdbcType=VARCHAR}
+        </if>
         <if test="jobStatus !=null and jobStatus!= -1">
             AND job_status =#{jobStatus,jdbcType=TINYINT}
         </if>
-        <if test="targetNameLike != null and targetNameLike !='' ">
-            AND target_name LIKE CONCAT(#{targetNameLike,jdbcType=VARCHAR},'%')
+        <if test="targetClassLike != null and targetClassLike !='' ">
+            AND target_class LIKE CONCAT(#{targetClassLike,jdbcType=VARCHAR},'%')
         </if>
         <if test="targetMethodLike != null and targetMethodLike !='' ">
             AND target_method LIKE CONCAT(#{targetMethodLike,jdbcType=VARCHAR},'%')

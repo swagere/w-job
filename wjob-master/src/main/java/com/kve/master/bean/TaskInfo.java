@@ -60,7 +60,7 @@ public class TaskInfo extends BaseEntity implements Serializable {
     private String triggerName;
 
     /**
-     * 调度器分组-应用名称
+     * 调度器分组-任务组
      */
     private String triggerGroup;
 

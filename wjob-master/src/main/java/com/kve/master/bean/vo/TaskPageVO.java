@@ -15,7 +15,7 @@ public class TaskPageVO implements Serializable {
 
     private Integer total;
 
-    private List<TaskInfo> list;
+    private List<TaskDetailVO> list;
 
     public static TaskPageVO initDefault() {
         TaskPageVO result = new TaskPageVO();
@@ -27,7 +27,7 @@ public class TaskPageVO implements Serializable {
     public TaskPageVO() {
     }
 
-    public TaskPageVO(Integer total, List<TaskInfo> list) {
+    public TaskPageVO(Integer total, List<TaskDetailVO> list) {
         this.total = total;
         this.list = list;
     }

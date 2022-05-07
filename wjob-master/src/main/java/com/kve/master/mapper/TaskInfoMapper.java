@@ -7,10 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * @author: hujing39
- * @date: 2022-03-15
- */
 
 @Repository
 public interface TaskInfoMapper {

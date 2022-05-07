@@ -4,6 +4,7 @@ import com.kve.master.bean.TaskBean;
 import com.kve.master.bean.TaskInfo;
 import com.kve.master.config.exception.WJobException;
 import com.kve.master.config.response.SysExceptionEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Component
 public class QuartzScheduleUtil{
-    private static Logger log = LoggerFactory.getLogger(QuartzScheduleUtil.class);
     private static Scheduler scheduler;
 
     @Autowired

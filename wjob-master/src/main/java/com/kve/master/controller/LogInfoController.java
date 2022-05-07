@@ -17,7 +17,6 @@ import javax.annotation.Resource;
 /**
  * 任务日志controller
  */
-@Slf4j
 @RestController
 @RequestMapping("/job-admin/job-log")
 public class LogInfoController {

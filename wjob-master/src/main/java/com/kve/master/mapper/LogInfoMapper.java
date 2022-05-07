@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * 任务日志记录表
  *
- * @author mengq
  */
 @Repository
 public interface LogInfoMapper {

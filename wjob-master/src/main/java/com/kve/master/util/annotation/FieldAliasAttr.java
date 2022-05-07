@@ -1,4 +1,4 @@
-package com.kve.master.util;
+package com.kve.master.util.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

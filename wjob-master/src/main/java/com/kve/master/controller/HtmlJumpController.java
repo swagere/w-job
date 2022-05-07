@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * 页面跳转
  */
-@Slf4j
 @Controller
 @RequestMapping("/job-admin")
 public class HtmlJumpController {

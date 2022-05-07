@@ -17,11 +17,6 @@ public class BasicJobConfig {
     public String start = "on";
 
     /**
-     * 项目标识key
-     */
-    public String projectKey = "common";
-
-    /**
      * 平台名称
      */
     public String platformName = "";

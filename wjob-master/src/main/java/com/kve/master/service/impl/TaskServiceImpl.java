@@ -19,9 +19,9 @@ import com.kve.master.mapper.LogInfoMapper;
 import com.kve.master.service.TaskService;
 import com.kve.master.util.*;
 import com.kve.master.mapper.TaskInfoMapper;
+import com.kve.master.util.CompareObjectUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -34,14 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * @author: hujing39
- * @date: 2022-03-14
- */
-
+@Slf4j
 @Service
 public class TaskServiceImpl implements TaskService {
-    private static Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     @Autowired
     private Scheduler scheduler;

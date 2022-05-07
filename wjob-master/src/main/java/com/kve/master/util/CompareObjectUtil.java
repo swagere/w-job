@@ -1,6 +1,7 @@
 package com.kve.master.util;
 
 
+import com.kve.master.util.annotation.FieldAliasAttr;
 import lombok.extern.slf4j.Slf4j;
 
 import java.beans.PropertyDescriptor;

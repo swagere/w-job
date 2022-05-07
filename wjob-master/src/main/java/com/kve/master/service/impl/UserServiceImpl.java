@@ -35,7 +35,6 @@ import java.util.Map;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-
     @Autowired
     UserInfoMapper userInfoMapper;
 

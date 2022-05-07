@@ -10,7 +10,6 @@ import java.text.MessageFormat;
 /**
  * IP地址获取
  *
- * @author mengq
  */
 @Slf4j
 public class IpAddressUtil {

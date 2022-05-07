@@ -1,8 +1,12 @@
 package com.kve.master.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSON;
+import com.kve.master.bean.LogInfo;
 import com.kve.master.bean.TaskInfo;
+import com.kve.master.bean.base.BaseParam;
 import com.kve.master.bean.dto.TaskPageQueryDTO;
+import com.kve.master.bean.enums.LogTypeEnum;
 import com.kve.master.bean.enums.TaskStatusEnum;
 import com.kve.master.bean.param.TaskPageParam;
 import com.kve.master.bean.param.TaskParam;
@@ -11,12 +15,10 @@ import com.kve.master.bean.vo.TaskPageVO;
 import com.kve.master.config.ApplicationContextHelper;
 import com.kve.master.config.exception.WJobException;
 import com.kve.master.config.response.SysExceptionEnum;
+import com.kve.master.mapper.LogInfoMapper;
 import com.kve.master.service.TaskService;
-import com.kve.master.util.BeanCopyUtil;
-import com.kve.master.util.PageUtils;
-import com.kve.master.util.ParamUtil;
+import com.kve.master.util.*;
 import com.kve.master.mapper.TaskInfoMapper;
-import com.kve.master.util.QuartzScheduleUtil;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author: hujing39
@@ -39,13 +43,14 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
     private static Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
 
-//    private final ReentrantLock reentrantLock = new ReentrantLock();
-
     @Autowired
     private Scheduler scheduler;
 
     @Autowired
     private TaskInfoMapper taskInfoMapper;
+
+    @Autowired
+    private LogInfoMapper logInfoMapper;
 
     /**
      * 新增任务
@@ -54,38 +59,35 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void saveTask(TaskParam taskParam) throws Exception{
-//        reentrantLock.lock();
-        try {
-            //基本参数是否为空校验
-            if (!checkParamAfterSaveOrUpdate(taskParam)) {
-                throw new WJobException(SysExceptionEnum.PARAM_ILLEGAL, "基本参数校验失败");
-            }
-            //时间表达式校验
-            if (!CronExpression.isValidExpression(taskParam.getCronExpression())) {
-                throw new WJobException(SysExceptionEnum.PARAM_CORN_ILLEGAL, "时间表达式校验失败");
-            }
-            //任务存在性校验
-            if (existTask(taskParam.getTriggerName(), taskParam.getTriggerGroup())) {
-                throw new WJobException(SysExceptionEnum.TASK_GROUP_THE_SAME_EXISTS);
-            }
-
-            TaskInfo taskInfo = buildTaskEntity(taskParam);
-
-            //重复性校验
-            if (existTask(taskParam.getTriggerName(), taskParam.getTriggerGroup())) {
-                throw new WJobException(SysExceptionEnum.TASK_GROUP_THE_SAME_EXISTS);
-            }
-
-            //数据持久化
-            taskInfo.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
-            taskInfoMapper.addTask(taskInfo);
-
-            log.info("TaskService>> saveTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
-        } finally {
-//            reentrantLock.unlock();
-//            log.debug("new job, unlock >> addJob >> param={}", JSON.toJSONString(taskParam));
+        //基本参数是否为空校验
+        if (!checkParamAfterSaveOrUpdate(taskParam)) {
+            throw new WJobException(SysExceptionEnum.PARAM_ILLEGAL, "基本参数校验失败");
+        }
+        //时间表达式校验
+        if (!CronExpression.isValidExpression(taskParam.getCronExpression())) {
+            throw new WJobException(SysExceptionEnum.PARAM_CORN_ILLEGAL, "时间表达式校验失败");
+        }
+        //任务存在性校验
+        if (existTask(taskParam.getTriggerName(), taskParam.getTriggerGroup())) {
+            throw new WJobException(SysExceptionEnum.TASK_GROUP_THE_SAME_EXISTS);
         }
 
+        TaskInfo taskInfo = buildTaskEntity(taskParam);
+
+        //重复性校验
+        if (existTask(taskParam.getTriggerName(), taskParam.getTriggerGroup())) {
+            throw new WJobException(SysExceptionEnum.TASK_GROUP_THE_SAME_EXISTS);
+        }
+
+        //数据持久化
+        taskInfo.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
+        taskInfoMapper.addTask(taskInfo);
+
+        //异步添加操作日志
+        CompletableFuture.runAsync(() -> this.addLog(taskInfo.getId(), LogTypeEnum.CREATE, taskParam));
+
+
+//        log.info("TaskService>> saveTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
     }
 
     @Override
@@ -120,7 +122,10 @@ public class TaskServiceImpl implements TaskService {
         taskInfo.setJobStatus(TaskStatusEnum.CREATE.getValue()); //创建态
         taskInfoMapper.updateById(taskInfo);
 
-        log.info("TaskService>> updateTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
+        //异步添加操作日志
+        CompletableFuture.runAsync(() -> this.addLogAfterUpdate(taskParam.getId(), oldTaskInfo, taskParam));
+
+        //        log.info("TaskService>> updateTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
     }
 
     /**
@@ -139,7 +144,11 @@ public class TaskServiceImpl implements TaskService {
 
         taskInfoMapper.removeById(taskInfo.getId(), taskInfo.getUpdateBy(), taskInfo.getUpdateName());
 
-        log.info("TaskService>> deleteTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
+        //异步添加操作日志
+        CompletableFuture.runAsync(() -> this.addLog(taskParam.getId(), LogTypeEnum.DELETE, taskParam));
+
+
+//        log.info("TaskService>> deleteTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
     }
 
     /**
@@ -184,42 +193,40 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void startJob(TaskParam taskParam) throws Exception{
-//        reentrantLock.lock();
-        try {
-            //查询任务是否存在
-            TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getId());
+        //查询任务是否存在
+        TaskInfo taskInfo = taskInfoMapper.findById(taskParam.getId());
 
-            if (taskInfo == null) {
-                throw new WJobException(SysExceptionEnum.TASK_NOT_EXISTS);
-            }
-
-            //校验任务是否已启动
-            // TODO: 2022/5/2 任务已启动不能仅仅判断其状态
-            if (taskInfo.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
-                throw new WJobException(SysExceptionEnum.FAIL_JOB_IS_RUNNING);
-            }
-
-            //时间表达式校验
-            if (!CronExpression.isValidExpression(taskInfo.getCronExpression())) {
-                throw new WJobException(SysExceptionEnum.PARAM_CORN_ILLEGAL);
-            }
-
-            //类、方法存在校验
-            checkBeanAndMethodExists(taskInfo.getTargetClass(), taskInfo.getTargetMethod(), taskInfo.getTargetArguments());
-
-            QuartzScheduleUtil.startJob(taskInfo);
-
-            //更新任务状态
-            TaskInfo task = new TaskInfo();
-            task.setId(taskInfo.getId());
-            taskInfo.setJobStatus(TaskStatusEnum.RUNNING.getValue());
-            taskInfoMapper.updateById(taskInfo);
-
-            log.info("TaskService >> startJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
-        } finally {
-//            reentrantLock.unlock();
-//            log.debug("启动任务job , 释放锁 >> startJob >> param={}", JSON.toJSONString(taskParam));
+        if (taskInfo == null) {
+            throw new WJobException(SysExceptionEnum.TASK_NOT_EXISTS);
         }
+
+        //校验任务是否已启动
+        // TODO: 2022/5/2 任务已启动不能仅仅判断其状态
+        if (taskInfo.getJobStatus().equals(TaskStatusEnum.RUNNING.getValue())) {
+            throw new WJobException(SysExceptionEnum.FAIL_JOB_IS_RUNNING);
+        }
+
+        //时间表达式校验
+        if (!CronExpression.isValidExpression(taskInfo.getCronExpression())) {
+            throw new WJobException(SysExceptionEnum.PARAM_CORN_ILLEGAL);
+        }
+
+        //类、方法存在校验
+        checkBeanAndMethodExists(taskInfo.getTargetClass(), taskInfo.getTargetMethod(), taskInfo.getTargetArguments());
+
+        QuartzScheduleUtil.startJob(taskInfo);
+
+        //更新任务状态
+        TaskInfo task = new TaskInfo();
+        task.setId(taskInfo.getId());
+        taskInfo.setJobStatus(TaskStatusEnum.RUNNING.getValue());
+        taskInfoMapper.updateById(taskInfo);
+
+        //异步添加操作日志
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.OPEN, taskParam));
+
+
+//        log.info("TaskService >> startJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
     }
 
     /**
@@ -247,7 +254,11 @@ public class TaskServiceImpl implements TaskService {
         taskInfo.setJobStatus(TaskStatusEnum.PAUSE.getValue());
         taskInfoMapper.updateById(taskInfo);
 
-        log.info("TaskService >> pauseJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
+        //异步添加操作日志
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.CLOSE, taskParam));
+
+
+//        log.info("TaskService >> pauseJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
     }
 
     /**
@@ -277,7 +288,11 @@ public class TaskServiceImpl implements TaskService {
         taskInfo.setJobStatus(TaskStatusEnum.RUNNING.getValue());
         taskInfoMapper.updateById(taskInfo);
 
-        log.info("TaskService >> resumeJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
+        //异步添加操作日志
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.CLOSE, taskParam));
+
+
+//        log.info("TaskService >> resumeJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
     }
 
     /**
@@ -298,7 +313,72 @@ public class TaskServiceImpl implements TaskService {
         taskInfo.setJobStatus(TaskStatusEnum.FINISH_EXCEPTION.getValue());
         taskInfoMapper.updateById(taskInfo);
 
-        log.info("TaskService >> stopJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
+        //异步添加操作日志
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.CLOSE, taskParam));
+
+
+//        log.info("TaskService >> stopJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
+    }
+
+    /**
+     * 添加日志
+     */
+    private void addLog(Integer jobId, LogTypeEnum logTypeEnum, BaseParam operateBO) {
+        try {
+            TaskInfo scheduledQuartzJobInfo = taskInfoMapper.findById(jobId);
+            if (null == scheduledQuartzJobInfo) {
+                return;
+            }
+            this.doAddLog(jobId, logTypeEnum, operateBO, JSON.toJSONString(scheduledQuartzJobInfo));
+        } catch (Exception e) {
+//            log.error("TaskServiceImpl >> aync addLog add log exception", e);
+        }
+    }
+
+    /**
+     * 更新任务-记录操作日志
+     */
+    private void addLogAfterUpdate(Integer jobId, TaskInfo oldJobInfo, BaseParam operateBO) {
+        try {
+            TaskInfo newJobInfo = taskInfoMapper.findById(jobId);
+            if (null == newJobInfo) {
+                return;
+            }
+
+            Map<String, Object> allFieldValues = CompareObjectUtil.getAllFieldValues(oldJobInfo, newJobInfo, TaskInfo.class);
+            //记录操作日志
+            this.doAddLog(jobId, LogTypeEnum.UPDATE, operateBO, JSON.toJSONString(allFieldValues));
+        } catch (Exception e) {
+//            log.error("TaskServiceImpl >> aync addLog  add log exception", e);
+        }
+    }
+
+
+    /**
+     * 添加日志
+     */
+    private void doAddLog(Integer jobId, LogTypeEnum logTypeEnum, BaseParam baseParam, String content) {
+        LogInfo jobLog = new LogInfo();
+        jobLog.setJobId(jobId);
+        jobLog.setLogType(logTypeEnum.getType());
+        jobLog.setLogDesc(logTypeEnum.getDesc());
+        jobLog.setContent(content == null ? "" : content);
+        jobLog.setOperateId(baseParam.getOperateBy());
+        jobLog.setOperateName(baseParam.getOperateName());
+        String ipAddress = baseParam.getClientIp();
+        if (!IpAddressUtil.LOCAL_IP.equals(ipAddress)) {
+            String addressByIp = IpAddressUtil.getAddressByIp(ipAddress);
+            if (!StringUtils.isEmpty(addressByIp)) {
+                ipAddress = ipAddress + IpAddressUtil.SEPARATE + addressByIp;
+            }
+        }
+        jobLog.setIpAddress(ipAddress);
+        String remarks = baseParam.getBrowserName();
+        if (!StringUtils.isEmpty(baseParam.getOs())) {
+            remarks = remarks + IpAddressUtil.SEPARATE + baseParam.getOs();
+        }
+        jobLog.setRemarks(remarks);
+        logInfoMapper.addLog(jobLog);
     }
 
     /**
@@ -398,7 +478,7 @@ public class TaskServiceImpl implements TaskService {
                 throw new WJobException(SysExceptionEnum.JOB_CLASS_METHOD_NOT_EXISTS);
             }
         } catch (Exception e) {
-            log.error("[ TaskService ] >> checkBeanAndMethodIsExists error ", e);
+//            log.error("[ TaskService ] >> checkBeanAndMethodIsExists error ", e);
             throw e;
         }
     }

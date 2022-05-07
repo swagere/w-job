@@ -1,8 +1,5 @@
 package com.kve.master.bean.enums;
 
-/**
- * @author mengq
- */
 public enum DelFlagEnum {
 
     /**

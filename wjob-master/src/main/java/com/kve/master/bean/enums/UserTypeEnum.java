@@ -5,8 +5,6 @@ import java.util.Map;
 
 /**
  * 用户类型枚举
- *
- * @author mengq
  */
 public enum UserTypeEnum {
 

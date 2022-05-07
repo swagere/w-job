@@ -10,8 +10,6 @@ import java.net.Socket;
 
 /**
  * RPC客户端
- * @author: hujing39
- * @date: 2022-03-07
  */
 
 public class RpcClient<T> {

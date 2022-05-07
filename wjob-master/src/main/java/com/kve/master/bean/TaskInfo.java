@@ -9,8 +9,6 @@ import java.io.Serializable;
 
 /**
  * 任务持久化
- * @author: hujing39
- * @date: 2022-03-14
  */
 
 @Data

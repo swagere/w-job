@@ -1,8 +1,5 @@
 package com.kve.master.config.response;
 
-/**
- * @author mengq
- */
 public interface ExceptionEnumInterface {
 
     /**

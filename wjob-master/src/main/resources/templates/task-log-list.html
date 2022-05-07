@@ -41,7 +41,7 @@
                                    id="createEndTime">
                         </div>
                         <div class="layui-inline layui-show-xs-block">
-                            <input type="text" name="jobNameLike" id="jobNameLike" placeholder="请输入任务名称"
+                            <input type="text" name="triggerNameLike" id="triggerNameLike" placeholder="请输入任务名称"
                                    autocomplete="off"
                                    class="layui-input">
                         </div>
@@ -118,9 +118,11 @@
             , cols: [
                 [
                     {field: 'id', title: '日志ID', width: 100, fixed: 'left'},
-                    {field: 'jobId', title: '任务ID', width: 150},
-                    {field: 'jobName', title: '任务名称', width: 160},
-                    {field: 'jobClass', title: '任务类', width: 180},
+                    {field: 'jobId', title: '任务ID', width: 100},
+                    {field: 'triggerGroup', title: '任务组', width: 100},
+                    {field: 'triggerName', title: '任务名', width: 100},
+                    {field: 'targetClass', title: '目标类', width: 100},
+                    {field: 'targetMethod', title: '目标方法', width: 100},
                     {field: 'logDesc', title: '日志类型', width: 100},
                     {field: 'operateId', title: '操作人ID', width: 100},
                     {field: 'operateName', title: '操作人名称', width: 120},
@@ -140,7 +142,7 @@
                     curr: 1
                 }
                 , where: {
-                    jobNameLike: $("#jobNameLike").val(),
+                    triggerNameLike: $("#triggerNameLike").val(),
                     logType: $("#logType").val(),
                     operateNameLike: $("#operateNameLike").val(),
                     createStartTime: $("#createStartTime").val(),
@@ -159,7 +161,7 @@
         table.on('tool(currentTableFilter)', function (obj) {
                 const data = obj.data;
                 if (obj.event === 'showDetail') {
-                    xadmin.open('日志详情', api.job_log.detailHtml + '?id=' + data.id, 800, 600);
+                    xadmin.open('日志详情', api.job_log.detailHtml + '?id=' + data.id, 800, 400);
                 }
             }
         );

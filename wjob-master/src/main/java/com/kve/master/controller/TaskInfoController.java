@@ -31,7 +31,7 @@ import java.net.URLDecoder;
 
 @RestController
 @RequestMapping("/job-admin/task")
-public class TaskController {
+public class TaskInfoController {
     /**
      * cookie_key
      */

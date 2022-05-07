@@ -14,8 +14,6 @@ import java.util.concurrent.Executors;
 
 /**
  * RPC服务端
- * @author: hujing39
- * @date: 2022-03-07
  */
 
 public class ServiceCenter implements RpcServer {

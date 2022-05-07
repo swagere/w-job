@@ -77,30 +77,30 @@
                                 <td id="jobId"></td>
                                 <td id="jobId2"></td>
                             </tr>
-                            <tr id="jobClassTr">
+                            <tr id="targetClassTr">
                                 <th><strong>任务类名</strong></th>
-                                <td id="jobClass"></td>
-                                <td id="jobClass2"></td>
+                                <td id="targetClass"></td>
+                                <td id="targetClass2"></td>
                             </tr>
-                            <tr id="jobMethodTr">
+                            <tr id="targetMethodTr">
                                 <th><strong>任务方法</strong></th>
-                                <td id="jobMethod"></td>
-                                <td id="jobMethod2"></td>
+                                <td id="targetMethod"></td>
+                                <td id="targetMethod2"></td>
                             </tr>
-                            <tr id="jobArgumentsTr">
+                            <tr id="targetArgumentsTr">
                                 <th><strong>任务参数</strong></th>
-                                <td id="jobArguments"></td>
-                                <td id="jobArguments2"></td>
+                                <td id="targetArguments"></td>
+                                <td id="targetArguments2"></td>
                             </tr>
-                            <tr id="jobGroupTr">
+                            <tr id="triggerGroupTr">
                                 <th><strong>任务组</strong></th>
-                                <td id="jobGroup"></td>
-                                <td id="jobGroup2"></td>
+                                <td id="triggerGroup"></td>
+                                <td id="triggerGroup2"></td>
                             </tr>
-                            <tr id="jobNameTr">
+                            <tr id="triggerNameTr">
                                 <th><strong>任务名称</strong></th>
-                                <td id="jobName"></td>
-                                <td id="jobName2"></td>
+                                <td id="triggerName"></td>
+                                <td id="triggerName2"></td>
                             </tr>
                             <tr id="cronExpressionTr">
                                 <th><strong>时间表达式</strong></th>
@@ -128,23 +128,23 @@
                         </tr>
                         <tr>
                             <th><strong>任务类名</strong></th>
-                            <td id="objJobClass"></td>
+                            <td id="objTargetClass"></td>
                         </tr>
                         <tr>
                             <th><strong>任务方法</strong></th>
-                            <td id="objJobMethod"></td>
+                            <td id="objTargetMethod"></td>
                         </tr>
                         <tr>
                             <th><strong>任务参数</strong></th>
-                            <td id="objJobArguments"></td>
+                            <td id="objTargetArguments"></td>
                         </tr>
                         <tr>
                             <th><strong>任务组</strong></th>
-                            <td id="objJobGroup"></td>
+                            <td id="objTriggerGroup"></td>
                         </tr>
                         <tr>
                             <th><strong>任务名称</strong></th>
-                            <td id="objJobName"></td>
+                            <td id="objTriggerName"></td>
                         </tr>
                         <tr>
                             <th><strong>时间表达式</strong></th>
@@ -183,7 +183,6 @@
                     const data = r.data;
                     $("#logId").html(data.id);
                     $("#logTypeDesc").html(data.logDesc);
-                    $("#realName").html(data.realName);
                     $("#operateId").html(data.operateId);
                     $("#operateName").html(data.operateName);
                     $("#createTime").html(data.createTime);
@@ -205,38 +204,38 @@
                             }
 
                             //任务类
-                            $("#jobClass").html(jobJson.jobClass[0] == null ? '' : jobJson.jobClass[0]);
-                            $("#jobClass2").html(jobJson.jobClass[1] == null ? '' : jobJson.jobClass[1]);
-                            if (jobJson.jobClass[0] !== jobJson.jobClass[1]) {
-                                $("#jobClassTr").css("background", "#77DDFF");
+                            $("#targetClass").html(jobJson.targetClass[0] == null ? '' : jobJson.targetClass[0]);
+                            $("#targetClass2").html(jobJson.targetClass[1] == null ? '' : jobJson.targetClass[1]);
+                            if (jobJson.targetClass[0] !== jobJson.targetClass[1]) {
+                                $("#targetClassTr").css("background", "#77DDFF");
                             }
 
                             //任务方法
-                            $("#jobMethod").html(jobJson.jobMethod[0] == null ? '' : jobJson.jobMethod[0]);
-                            $("#jobMethod2").html(jobJson.jobMethod[1] == null ? '' : jobJson.jobMethod[1]);
-                            if (jobJson.jobClass[0] !== jobJson.jobClass[1]) {
-                                $("#jobMethodTr").css("background", "#77DDFF");
+                            $("#targetMethod").html(jobJson.targetMethod[0] == null ? '' : jobJson.targetMethod[0]);
+                            $("#targetMethod2").html(jobJson.targetMethod[1] == null ? '' : jobJson.targetMethod[1]);
+                            if (jobJson.targetClass[0] !== jobJson.targetClass[1]) {
+                                $("#targetMethodTr").css("background", "#77DDFF");
                             }
 
                             //任务参数
-                            $("#jobArguments").html(jobJson.jobArguments[0] == null ? '' : jobJson.jobArguments[0]);
-                            $("#jobArguments2").html(jobJson.jobArguments[1] == null ? '' : jobJson.jobArguments[1]);
-                            if (jobJson.jobArguments[0] !== jobJson.jobArguments[1]) {
-                                $("#jobArgumentsTr").css("background", "#77DDFF");
+                            $("#targetArguments").html(jobJson.targetArguments[0] == null ? '' : jobJson.targetArguments[0]);
+                            $("#targetArguments2").html(jobJson.targetArguments[1] == null ? '' : jobJson.targetArguments[1]);
+                            if (jobJson.targetArguments[0] !== jobJson.targetArguments[1]) {
+                                $("#targetArgumentsTr").css("background", "#77DDFF");
                             }
 
                             //任务组
-                            $("#jobGroup").html(jobJson.jobGroup[0] == null ? '' : jobJson.jobGroup[0]);
-                            $("#jobGroup2").html(jobJson.jobGroup[1] == null ? '' : jobJson.jobGroup[1]);
-                            if (jobJson.jobGroup[0] !== jobJson.jobGroup[1]) {
-                                $("#jobGroupTr").css("background", "#77DDFF");
+                            $("#triggerGroup").html(jobJson.triggerGroup[0] == null ? '' : jobJson.triggerGroup[0]);
+                            $("#triggerGroup2").html(jobJson.triggerGroup[1] == null ? '' : jobJson.triggerGroup[1]);
+                            if (jobJson.triggerGroup[0] !== jobJson.triggerGroup[1]) {
+                                $("#triggerGroupTr").css("background", "#77DDFF");
                             }
 
                             //任务名称
-                            $("#jobName").html(jobJson.jobName[0] == null ? '' : jobJson.jobName[0]);
-                            $("#jobName2").html(jobJson.jobName[1] == null ? '' : jobJson.jobName[1]);
-                            if (jobJson.jobName[0] !== jobJson.jobName[1]) {
-                                $("#jobNameTr").css("background", "#77DDFF");
+                            $("#triggerName").html(jobJson.triggerName[0] == null ? '' : jobJson.triggerName[0]);
+                            $("#triggerName2").html(jobJson.triggerName[1] == null ? '' : jobJson.triggerName[1]);
+                            if (jobJson.triggerName[0] !== jobJson.triggerName[1]) {
+                                $("#triggerNameTr").css("background", "#77DDFF");
                             }
 
                             //时间表达式
@@ -256,11 +255,11 @@
                             $("#arrayContent").hide();
                             $("#objContent").show();
                             $("#objJobId").html(jobJson.id == null ? 0 : jobJson.id);
-                            $("#objJobClass").html(jobJson.jobClass == null ? '' : jobJson.jobClass);
-                            $("#objJobMethod").html(jobJson.jobMethod == null ? '' : jobJson.jobMethod);
-                            $("#objJobArguments").html(jobJson.jobArguments == null ? '' : jobJson.jobArguments);
-                            $("#objJobGroup").html(jobJson.jobGroup == null ? '' : jobJson.jobGroup);
-                            $("#objJobName").html(jobJson.jobName == null ? '' : jobJson.jobName);
+                            $("#objTargetClass").html(jobJson.targetClass == null ? '' : jobJson.targetClass);
+                            $("#objTargetMethod").html(jobJson.targetMethod == null ? '' : jobJson.targetMethod);
+                            $("#objTargetArguments").html(jobJson.targetArguments == null ? '' : jobJson.targetArguments);
+                            $("#objTriggerGroup").html(jobJson.triggerGroup == null ? '' : jobJson.triggerGroup);
+                            $("#objTriggerName").html(jobJson.triggerName == null ? '' : jobJson.triggerName);
                             $("#objCronExpression").html(jobJson.cronExpression == null ? '' : jobJson.cronExpression);
                             $("#objDescription").html(jobJson.description == null ? '' : jobJson.description);
                         }

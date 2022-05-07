@@ -12,8 +12,6 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * 页面跳转
- *
- * @author mengq
  */
 @Slf4j
 @Controller

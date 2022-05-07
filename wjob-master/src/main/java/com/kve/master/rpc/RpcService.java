@@ -7,10 +7,6 @@ import org.quartz.ee.jmx.jboss.QuartzService;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author: hujing39
- * @date: 2022-03-16
- */
 
 //@Service
 public class RpcService {

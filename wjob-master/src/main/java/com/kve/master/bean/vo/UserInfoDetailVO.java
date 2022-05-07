@@ -7,9 +7,6 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * @author mengq
- */
 @Data
 public class UserInfoDetailVO implements Serializable {
 

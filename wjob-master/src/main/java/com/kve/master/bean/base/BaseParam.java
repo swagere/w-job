@@ -4,10 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * @author mengq
- * @version 1.0
- */
 @Data
 public class BaseParam implements Serializable {
 

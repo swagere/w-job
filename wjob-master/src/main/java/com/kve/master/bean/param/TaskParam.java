@@ -9,8 +9,6 @@ import java.util.Map;
 
 /**
  * 任务相关 入参
- * @author: hujing39
- * @date: 2022-03-08
  */
 
 @Data

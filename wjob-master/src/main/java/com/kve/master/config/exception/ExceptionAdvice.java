@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * 全局统一异常处理
  *
- * @author mengq
  */
 @ControllerAdvice
 @Slf4j

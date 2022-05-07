@@ -4,11 +4,6 @@ import lombok.Data;
 
 import java.util.Date;
 
-/**
- * @author: hujing39
- * @date: 2022-03-15
- */
-
 @Data
 public class BaseEntity {
     /**

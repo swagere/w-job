@@ -4,10 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * @author mengq
- * @version 1.0
- */
 @Data
 public class TaskPageParam implements Serializable {
     private static final long serialVersionUID = 3234394229041271191L;

@@ -14,8 +14,6 @@ import java.lang.reflect.Method;
 
 /**
  * 定时任务 核心Bean
- * @author: hujing39
- * @date: 2022-03-14
  */
 //@DisallowConcurrentExecution
 public class TaskBean implements Job {

@@ -11,10 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-/**
- * @author: hujing39
- * @date: 2022-03-07
- */
 @Component
 public class QuartzScheduleUtil{
     private static Logger log = LoggerFactory.getLogger(QuartzScheduleUtil.class);

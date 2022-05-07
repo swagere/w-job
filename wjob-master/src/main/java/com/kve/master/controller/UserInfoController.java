@@ -20,7 +20,7 @@ import java.net.URLDecoder;
 @Slf4j
 @RestController
 @RequestMapping("/job-admin/user")
-public class UserOperateController {
+public class UserInfoController {
     /**
      * cookie_key
      */

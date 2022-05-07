@@ -2,12 +2,6 @@ package com.kve.master.util;
 
 import org.springframework.util.StringUtils;
 
-/**
- * @author: hujing39
- * @date: 2022-03-15
- */
-
-
 public class ParamUtil {
     /**
      * 处理Job设置的参数多个使用分隔，推荐使用单个String 类型JSON参数

@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * 任务管理平台配置
- *
- * @author mengq
  */
 @Getter
 @Setter

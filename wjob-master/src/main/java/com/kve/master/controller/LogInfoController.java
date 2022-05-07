@@ -1,18 +1,15 @@
 package com.kve.master.controller;
 
 
-import com.kve.master.bean.param.LogDetailParam;
-import com.kve.master.bean.param.LogPageParam;
-import com.kve.master.bean.vo.LogPageVO;
+import com.kve.master.model.param.LogDetailParam;
+import com.kve.master.model.param.LogPageParam;
+import com.kve.master.model.vo.LogPageVO;
 import com.kve.master.config.response.AjaxResponse;
 import com.kve.master.service.LogService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
 
 /**
  * 任务日志controller

@@ -1,7 +1,7 @@
 package com.kve.master.mapper;
 
-import com.kve.master.bean.TaskInfo;
-import com.kve.master.bean.dto.TaskPageQueryDTO;
+import com.kve.master.model.bean.TaskInfo;
+import com.kve.master.model.dto.TaskPageQueryDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

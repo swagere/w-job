@@ -1,13 +1,13 @@
 package com.kve.master.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import com.kve.master.bean.LogInfo;
-import com.kve.master.bean.dto.LogPageQueryDTO;
-import com.kve.master.bean.param.LogDetailParam;
-import com.kve.master.bean.param.LogPageParam;
-import com.kve.master.bean.vo.LogDetailVO;
-import com.kve.master.bean.vo.LogItemVO;
-import com.kve.master.bean.vo.LogPageVO;
+import com.kve.master.model.bean.LogInfo;
+import com.kve.master.model.dto.LogPageQueryDTO;
+import com.kve.master.model.param.LogDetailParam;
+import com.kve.master.model.param.LogPageParam;
+import com.kve.master.model.vo.LogDetailVO;
+import com.kve.master.model.vo.LogItemVO;
+import com.kve.master.model.vo.LogPageVO;
 import com.kve.master.mapper.LogInfoMapper;
 import com.kve.master.service.LogService;
 import com.kve.master.util.BeanCopyUtil;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import sun.rmi.runtime.Log;
 
 import java.util.List;
 

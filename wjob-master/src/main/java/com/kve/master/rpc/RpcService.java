@@ -1,6 +1,6 @@
 package com.kve.master.rpc;
 
-import com.kve.master.bean.TaskInfo;
+import com.kve.master.model.bean.TaskInfo;
 import com.kve.master.util.PropertyRead;
 import org.quartz.ee.jmx.jboss.QuartzService;
 

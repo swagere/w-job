@@ -1,8 +1,8 @@
 package com.kve.master.mapper;
 
-import com.kve.master.bean.LogInfo;
-import com.kve.master.bean.dto.LogPageQueryDTO;
-import com.kve.master.bean.vo.LogItemVO;
+import com.kve.master.model.bean.LogInfo;
+import com.kve.master.model.dto.LogPageQueryDTO;
+import com.kve.master.model.vo.LogItemVO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

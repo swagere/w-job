@@ -1,11 +1,9 @@
 package com.kve.master.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.kve.master.bean.UserInfo;
-import com.kve.master.bean.param.LoginParam;
-import com.kve.master.config.exception.WJobException;
+import com.kve.master.model.bean.UserInfo;
+import com.kve.master.model.param.LoginParam;
 import com.kve.master.config.response.AjaxResponse;
-import com.kve.master.mapper.UserInfoMapper;
 import com.kve.master.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

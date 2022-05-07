@@ -1,20 +1,17 @@
 package com.kve.master.controller;
 
-import com.kve.master.bean.TaskInfo;
-import com.kve.master.bean.UserInfo;
-import com.kve.master.bean.base.BaseParam;
-import com.kve.master.bean.param.TaskPageParam;
-import com.kve.master.bean.param.TaskParam;
-import com.kve.master.bean.param.UserUpdateParam;
-import com.kve.master.bean.vo.TaskPageVO;
-import com.kve.master.bean.vo.UserInfoDetailVO;
+import com.kve.master.model.bean.TaskInfo;
+import com.kve.master.model.base.BaseParam;
+import com.kve.master.model.param.TaskPageParam;
+import com.kve.master.model.param.TaskParam;
+import com.kve.master.model.vo.TaskPageVO;
+import com.kve.master.model.vo.UserInfoDetailVO;
 import com.kve.master.config.exception.WJobException;
 import com.kve.master.config.response.AjaxResponse;
 import com.kve.master.config.response.SysExceptionEnum;
 import com.kve.master.service.TaskService;
 import com.kve.master.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;

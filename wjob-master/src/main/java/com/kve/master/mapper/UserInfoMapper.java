@@ -1,7 +1,7 @@
 package com.kve.master.mapper;
 
-import com.kve.master.bean.UserInfo;
-import com.kve.master.bean.dto.UserPageQueryDTO;
+import com.kve.master.model.bean.UserInfo;
+import com.kve.master.model.dto.UserPageQueryDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

@@ -2,16 +2,16 @@ package com.kve.master.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
-import com.kve.master.bean.LogInfo;
-import com.kve.master.bean.TaskInfo;
-import com.kve.master.bean.base.BaseParam;
-import com.kve.master.bean.dto.TaskPageQueryDTO;
-import com.kve.master.bean.enums.LogTypeEnum;
-import com.kve.master.bean.enums.TaskStatusEnum;
-import com.kve.master.bean.param.TaskPageParam;
-import com.kve.master.bean.param.TaskParam;
-import com.kve.master.bean.vo.TaskDetailVO;
-import com.kve.master.bean.vo.TaskPageVO;
+import com.kve.master.model.bean.LogInfo;
+import com.kve.master.model.bean.TaskInfo;
+import com.kve.master.model.base.BaseParam;
+import com.kve.master.model.dto.TaskPageQueryDTO;
+import com.kve.master.model.enums.LogTypeEnum;
+import com.kve.master.model.enums.TaskStatusEnum;
+import com.kve.master.model.param.TaskPageParam;
+import com.kve.master.model.param.TaskParam;
+import com.kve.master.model.vo.TaskDetailVO;
+import com.kve.master.model.vo.TaskPageVO;
 import com.kve.master.config.ApplicationContextHelper;
 import com.kve.master.config.exception.WJobException;
 import com.kve.master.config.response.SysExceptionEnum;
@@ -54,7 +54,6 @@ public class TaskServiceImpl implements TaskService {
      */
     @Override
     public void saveTask(TaskParam taskParam) throws Exception{
-        //基本参数是否为空校验
         if (!checkParamAfterSaveOrUpdate(taskParam)) {
             throw new WJobException(SysExceptionEnum.PARAM_ILLEGAL, "基本参数校验失败");
         }
@@ -443,7 +442,7 @@ public class TaskServiceImpl implements TaskService {
      */
     private boolean existTask(String triggerName, String triggerGroup) throws SchedulerException {
         TriggerKey triggerKey = new TriggerKey(triggerName, triggerGroup);
-        if (scheduler.getTrigger(triggerKey) != null) {
+        if (scheduler.checkExists(triggerKey)) {
             return true;
         }
 

@@ -1,0 +1,20 @@
+package com.kve.master.model.param;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class UserPageParam implements Serializable {
+
+    private static final long serialVersionUID = 4443152381870746507L;
+
+    private Integer page;
+    private Integer limit;
+
+    private Integer userStatus;
+    private Integer userType;
+
+    private String usernameLike;
+
+}

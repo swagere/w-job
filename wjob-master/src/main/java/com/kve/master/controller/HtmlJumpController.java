@@ -1,8 +1,7 @@
 package com.kve.master.controller;
 
-import com.kve.master.bean.enums.BaseSchedulerRunEnum;
+import com.kve.master.model.enums.BaseSchedulerRunEnum;
 import com.kve.master.config.BasicJobConfig;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;

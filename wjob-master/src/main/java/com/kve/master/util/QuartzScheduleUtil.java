@@ -1,13 +1,9 @@
 package com.kve.master.util;
 
-import com.kve.master.bean.TaskBean;
-import com.kve.master.bean.TaskInfo;
-import com.kve.master.config.exception.WJobException;
-import com.kve.master.config.response.SysExceptionEnum;
+import com.kve.master.model.TaskBean;
+import com.kve.master.model.bean.TaskInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -34,7 +30,7 @@ public class QuartzScheduleUtil{
             if (job == null) {
                 job = JobBuilder.newJob(TaskBean.class)
                         .withIdentity(jobKey)
-                        .storeDurably() //任务执行结束后 保存到数据库
+                        .storeDurably(true) //任务执行结束后 数据库数据不随着trigger删除而删除
                         .build();
                 scheduler.addJob(job, false);
             }

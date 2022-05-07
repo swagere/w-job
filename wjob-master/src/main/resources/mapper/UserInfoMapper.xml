@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kve.master.mapper.UserInfoMapper">
 
-    <resultMap type="com.kve.master.bean.UserInfo" id="BaseResultMap">
+    <resultMap type="com.kve.master.model.bean.UserInfo" id="BaseResultMap">
         <result property="id" column="id"/>
         <result property="username" column="username"/>
         <result property="password" column="password"/>
@@ -37,7 +37,7 @@
         LIMIT 1
     </select>
 
-    <update id="updateById" parameterType="com.kve.master.bean.UserInfo">
+    <update id="updateById" parameterType="com.kve.master.model.bean.UserInfo">
         UPDATE scheduled_user
         <set>
             <if test="username!=null">
@@ -86,7 +86,7 @@
         LIMIT 1
     </select>
 
-    <select id="listPageByCondition" parameterType="com.kve.master.bean.UserInfo"
+    <select id="listPageByCondition" parameterType="com.kve.master.model.bean.UserInfo"
             resultMap="BaseResultMap">
         SELECT
         <include refid="ScheduledUser"/>

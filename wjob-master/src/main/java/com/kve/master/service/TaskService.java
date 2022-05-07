@@ -1,9 +1,9 @@
 package com.kve.master.service;
 
-import com.kve.master.bean.TaskInfo;
-import com.kve.master.bean.param.TaskPageParam;
-import com.kve.master.bean.param.TaskParam;
-import com.kve.master.bean.vo.TaskPageVO;
+import com.kve.master.model.bean.TaskInfo;
+import com.kve.master.model.param.TaskPageParam;
+import com.kve.master.model.param.TaskParam;
+import com.kve.master.model.vo.TaskPageVO;
 
 public interface TaskService {
 

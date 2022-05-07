@@ -1,12 +1,11 @@
 package com.kve.master.controller;
 
-import com.kve.master.bean.param.UserPageParam;
-import com.kve.master.bean.param.UserParam;
-import com.kve.master.bean.param.UserUpdateParam;
-import com.kve.master.bean.vo.UserInfoPageVO;
+import com.kve.master.model.param.UserPageParam;
+import com.kve.master.model.param.UserParam;
+import com.kve.master.model.param.UserUpdateParam;
+import com.kve.master.model.vo.UserInfoPageVO;
 import com.kve.master.config.response.AjaxResponse;
 import com.kve.master.service.UserService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

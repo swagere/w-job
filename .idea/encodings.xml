@@ -2,13 +2,12 @@
 <project version="4">
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/quartz-example" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/quartz-example/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wjob-common" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wjob-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wjob-master" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wjob-master/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wjob-worker" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/wjob-worker-example" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wjob-worker/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/wjob-worker/src/main/resources" charset="UTF-8" />
   </component>

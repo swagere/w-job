@@ -10,6 +10,7 @@
         <module name="wjob-common" />
         <module name="wjob-worker" />
         <module name="wjob-master" />
+        <module name="wjob-worker-example" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -28,6 +29,7 @@
       <module name="wjob-master" options="-parameters" />
       <module name="wjob-rpc" options="-parameters" />
       <module name="wjob-worker" options="-parameters" />
+      <module name="wjob-worker-example" options="-parameters" />
     </option>
   </component>
 </project>

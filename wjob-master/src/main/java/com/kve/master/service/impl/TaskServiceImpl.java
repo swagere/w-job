@@ -2,6 +2,7 @@ package com.kve.master.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.kve.common.util.ParamUtil;
 import com.kve.master.model.bean.LogInfo;
 import com.kve.master.model.bean.TaskInfo;
 import com.kve.master.model.base.BaseParam;
@@ -12,7 +13,7 @@ import com.kve.master.model.param.TaskPageParam;
 import com.kve.master.model.param.TaskParam;
 import com.kve.master.model.vo.TaskDetailVO;
 import com.kve.master.model.vo.TaskPageVO;
-import com.kve.master.config.ApplicationContextHelper;
+import com.kve.common.config.ApplicationContextHelper;
 import com.kve.master.config.exception.WJobException;
 import com.kve.master.config.response.SysExceptionEnum;
 import com.kve.master.mapper.LogInfoMapper;
@@ -206,7 +207,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         //类、方法存在校验
-        checkBeanAndMethodExists(taskInfo.getTargetClass(), taskInfo.getTargetMethod(), taskInfo.getTargetArguments());
+//        checkBeanAndMethodExists(taskInfo.getTargetClass(), taskInfo.getTargetMethod(), taskInfo.getTargetArguments());
 
         QuartzScheduleUtil.startJob(taskInfo);
 

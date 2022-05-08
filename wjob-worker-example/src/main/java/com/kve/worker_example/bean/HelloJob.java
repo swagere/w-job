@@ -1,4 +1,4 @@
-package com.kve.master.model;
+package com.kve.worker_example.bean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +10,5 @@ public class HelloJob {
 
     public void print() {
         log.info("job execute ----------------------->");
-        System.out.println("job execute ----------------------->");
     }
 }

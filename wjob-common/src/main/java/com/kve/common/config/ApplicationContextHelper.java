@@ -1,4 +1,4 @@
-package com.kve.master.config;
+package com.kve.common.config;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

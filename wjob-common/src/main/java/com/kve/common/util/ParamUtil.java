@@ -1,4 +1,4 @@
-package com.kve.master.util;
+package com.kve.common.util;
 
 import org.springframework.util.StringUtils;
 

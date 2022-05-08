@@ -1,27 +1,27 @@
 package com.kve.master.model;
 
-import com.kve.master.config.ApplicationContextHelper;
+import com.kve.common.model.RequestModel;
+import com.kve.common.model.ResponseModel;
+import com.kve.common.util.NetConnectionUtil;
+import com.kve.common.config.ApplicationContextHelper;
 import com.kve.master.mapper.TaskInfoMapper;
 import com.kve.master.model.bean.TaskInfo;
-import com.kve.master.util.ParamUtil;
-import com.kve.master.util.RandomUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Method;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 定时任务 核心Bean
  */
 //@DisallowConcurrentExecution
+@Slf4j
 public class TaskBean implements Job {
-    private static Logger log = LoggerFactory.getLogger(TaskBean.class);
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobExecutionContext context) {
         JobDataMap map = context.getMergedJobDataMap();
         //任务ID
         Integer triggerId = (Integer) map.get("triggerId");
@@ -32,43 +32,42 @@ public class TaskBean implements Job {
         //方法参数
         String targetArguments = map.getString("targetArguments");
 
-        if (StringUtils.isEmpty(targetClass) || StringUtils.isEmpty(targetMethod)) {
-            throw new JobExecutionException("缺少执行类信息");
+        RequestModel requestModel = new RequestModel();
+        requestModel.setTargetClass(targetClass);
+        requestModel.setTargetArguments(targetArguments);
+        requestModel.setTargetMethod(targetMethod);
+        requestModel.setAction("RUN");
+        requestModel.setTimestamp(System.currentTimeMillis());
+
+        //执行器地址
+        List<String> addressList = new ArrayList<>();
+        addressList.add("127.0.0.1:9999");
+
+        //调用执行器，开始任务执行
+        ResponseModel responseModel = executeRemote(addressList, requestModel);
+
+        //更新最后执行时间
+        updateAfterRun(triggerId);
+    }
+
+    private ResponseModel executeRemote(List<String> addressList, RequestModel requestModel) {
+        if (addressList==null || addressList.size() < 1) {
+            ResponseModel result = new ResponseModel();
+            result.setStatus(ResponseModel.FAIL);
+            result.setMsg( "executor execute error, [address] is null" );
+            return result;
+        } else if (addressList.size() == 1) {
+            String address = addressList.get(0);
+
+            ResponseModel triggerCallback = NetConnectionUtil.postHex(NetConnectionUtil.addressToUrl(address), requestModel);
+            String failoverMessage = MessageFormat.format("executor running, [address] : {0}, [status] : {1}, [msg] : {2}", address, triggerCallback.getStatus(), triggerCallback.getMsg());
+            triggerCallback.setMsg(failoverMessage);
+            return triggerCallback;
+        } else {
+
         }
 
-        long startTime = System.currentTimeMillis();
-        try {
-            //任务日志标识
-            MDC.put("logId", RandomUtils.randomAlphanumeric(15));
-            log.info("[ JobDetail ] >> trigger start triggerId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}", triggerId, targetClass, targetMethod, targetArguments);
-            //任务参数处理
-            Object[] jobArs = ParamUtil.getJobArgs(targetArguments);
-
-            //目标类处理
-            Object target = ApplicationContextHelper.getApplicationContext().getBean(targetClass); //从ApplicationContext中获取到spring管理的bean
-            if (target == null) {
-                throw new JobExecutionException("无法寻找到目标类");
-            }
-            Class tc = target.getClass();
-            Class[] parameterType = ParamUtil.getParameters(jobArs); //获取类定义的参数列表
-
-            //执行任务方法
-            Method method = tc.getDeclaredMethod(targetMethod, parameterType);
-            if (method == null) {
-                throw new JobExecutionException("无法寻找到目标方法");
-            }
-            method.invoke(target, jobArs);
-        } catch (Exception e) {
-            log.error("[ JobDetail ] >> trigger execute exception triggerId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{}"
-                    , triggerId, targetClass, targetMethod, targetArguments, e);
-            throw new JobExecutionException(e);
-        }
-
-        this.updateAfterRun(triggerId);
-
-        log.info("[ JobDetail ] >> trigger end triggerId:{} , targetClass:{} ,targetMethod:{} , methodArgs:{} , time:{} ms"
-                , triggerId, targetClass, targetMethod, targetArguments, (System.currentTimeMillis() - startTime));
-
+        return null;
     }
 
     private void updateAfterRun(Integer jobId) {

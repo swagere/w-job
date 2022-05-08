@@ -23,8 +23,8 @@ public class QuartzScheduleUtil{
 
         try {
             //Job-----
-            log.info("scheduler", scheduler);
             JobKey jobKey = JobKey.jobKey(taskInfo.getTargetMethod(), taskInfo.getTargetClass());
+            log.info("scheduler:" +  jobKey);
             JobDetail job = scheduler.getJobDetail(jobKey);
             //任务调度实体不存在
             if (job == null) {
@@ -66,7 +66,7 @@ public class QuartzScheduleUtil{
                     taskInfo.getTriggerGroup());
         } catch (SchedulerException e) {
             log.info("[ QuartzScheduleUtil ] >> startJob exception; triggerName:{},triggerGroup:{}", taskInfo.getTriggerName(),
-                    taskInfo.getTriggerGroup(), e);
+                    taskInfo.getTriggerGroup());
             throw e;
         }
     }
@@ -80,7 +80,7 @@ public class QuartzScheduleUtil{
                     taskInfo.getTriggerGroup());
         } catch (SchedulerException e) {
             log.info("[ QuartzSchedulerUtil ] >> pause a task exception; triggerName:{},JobGroup:{}", taskInfo.getTriggerName(),
-                    taskInfo.getTriggerGroup(), e);
+                    taskInfo.getTriggerGroup());
             throw e;
         }
 
@@ -95,7 +95,7 @@ public class QuartzScheduleUtil{
                     taskInfo.getTriggerGroup());
         } catch (SchedulerException e) {
             log.info("[ QuartzSchedulerUtil ] >> resume a task exception; triggerName:{},JobGroup:{}", taskInfo.getTriggerName(),
-                    taskInfo.getTriggerGroup(), e);
+                    taskInfo.getTriggerGroup());
             throw e;
         }
     }
@@ -110,7 +110,7 @@ public class QuartzScheduleUtil{
                     taskInfo.getTriggerGroup());
         } catch (SchedulerException e) {
             log.info("[ QuartzSchedulerUtil ] >> stop a task exception; triggerName:{},JobGroup:{}", taskInfo.getTriggerName(),
-                    taskInfo.getTriggerGroup(), e);
+                    taskInfo.getTriggerGroup());
             throw e;
         }
 

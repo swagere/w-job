@@ -24,7 +24,7 @@ public enum SysExceptionEnum implements ExceptionEnumInterface {
     JOB_CLASS_NOT_EXISTS(4014, "名称为{0}任务类不存在"),
     JOB_CLASS_METHOD_NOT_EXISTS(4015, "目标类/方法不存在或参数个数不匹配"),
     SAVE_NOT_NEED_NOT_UPDATE(4016, "您未修改任何信息，无需保存"),
-    FAIL_SCHEDULER(4017, "调度错误"),
+    FAIL_SCHEDULER(4017, "操作执行失败"),
     JOB_IS_RUN(4018, "任务已启动"),
     JOB_IS_STOP(4019, "任务已停止"),
     FAIL_JOB_IS_RUNNING(4020, "任务运行中，无法执行操作"),

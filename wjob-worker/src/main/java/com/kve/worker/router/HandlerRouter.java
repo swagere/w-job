@@ -2,8 +2,8 @@ package com.kve.worker.router;
 
 import com.kve.common.model.RequestModel;
 import com.kve.common.model.ResponseModel;
-import com.kve.worker.router.action.ExecutorAction;
-import com.kve.worker.router.action.RunAction;
+import com.kve.worker.model.ExecutorStatusEnum;
+import com.kve.worker.router.action.*;
 import com.kve.worker.router.thread.TaskThread;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,25 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class HandlerRouter {
-
-	/**
-	 * job handler repository
-     */
-//	private static ConcurrentHashMap<String, IJobHandler> jobHandlerRepository = new ConcurrentHashMap<String, IJobHandler>();
-//	public static IJobHandler registJobHandler(String name, IJobHandler jobHandler){
-//		logger.info("xxl-job register jobhandler success, name:{}, jobHandler:{}", name, jobHandler);
-//		return HandlerRouter.jobHandlerRepository.put(name, jobHandler);
-//	}
-//	public static IJobHandler loadJobHandler(String name){
-//		return HandlerRouter.jobHandlerRepository.get(name);
-//	}
-
-    /**
-     * job thread repository
-     */
     private static ConcurrentHashMap<String, TaskThread> TaskThreadRepository = new ConcurrentHashMap<String, TaskThread>();
+
 	public static TaskThread registerTaskThread(String triggerKey){
         TaskThread taskThread = new TaskThread(triggerKey);
+		taskThread.setStatus(ExecutorStatusEnum.RUN.getValue());
         taskThread.start();
 		log.info("[ HandlerRouter ] executor register TaskThread success, triggerKey:{}", new Object[]{triggerKey});
 		HandlerRouter.TaskThreadRepository.put(triggerKey, taskThread);	// putIfAbsent | oh my god, map's put method return the old value!!!
@@ -45,9 +31,9 @@ public class HandlerRouter {
 	 */
 	public enum ActionRepository {
 		RUN(new RunAction()),
-//		KILL(new KillAction()),
-//		LOG(new LogAction()),
-//		BEAT(new BeatAction())
+		PAUSE(new PauseAction()),
+		STOP(new StopAction()),
+		BEAT(new BeatAction())
 		;
 
 		private ExecutorAction action;

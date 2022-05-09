@@ -4,9 +4,9 @@ import com.kve.common.config.ApplicationContextHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.springframework.stereotype.Component;
@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
-public class Executor {
-    private int port = 9999;
+public class ExecutorServer {
+    private static int port = 9999;
 
     Server server = null;
 
@@ -30,24 +30,25 @@ public class Executor {
             @Override
             public void run() {
                 ThreadPool threadPool = new ExecutorThreadPool(new ThreadPoolExecutor(200, 200, 30000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>()));	// 非阻塞
-                server = new Server(threadPool);
+                server = new Server();
+                server.setThreadPool(threadPool);
 
-                NetworkTrafficServerConnector connector = new NetworkTrafficServerConnector(server);
+                SelectChannelConnector connector = new SelectChannelConnector();
                 connector.setPort(port);
-//                connector.setMaxIdleTime(30000);
+                connector.setMaxIdleTime(30000);
                 server.setConnectors(new Connector[] { connector });
 
                 HandlerCollection handlerCollection = new HandlerCollection();
-                handlerCollection.setHandlers(new Handler[]{ApplicationContextHelper.getBean(ExecutorHandler.class)});
+                handlerCollection.setHandlers(new Handler[]{ApplicationContextHelper.getBean(ExecutorServerHandler.class)});
                 server.setHandler(handlerCollection);
 
                 try {
                     server.start();
-                    log.info("[ Executor ] jetty server start success at port:{}." , port);
+                    log.info("[ ExecutorServer ] jetty server start success at port:{}." , port);
                     server.join();
-                    log.info("[ Executor ] jetty server join success at port:{}." , port);
+                    log.info("[ ExecutorServer ] jetty server join success at port:{}." , port);
                 } catch (Exception e) {
-                    log.error("[ Executor ] jetty start exception at port:{}, e:{}" , port, e);
+                    log.error("[ ExecutorServer ] jetty start exception at port:{}, e:{}" , port, e);
                 }
 
             }
@@ -60,7 +61,7 @@ public class Executor {
             try {
                 server.stop();
             } catch (Exception e) {
-                log.error("[ Executor ] jetty destroy exception at port:{}, e:{}" , port, e);
+                log.error("[ ExecutorServer ] jetty destroy exception at port:{}, e:{}" , port, e);
             }
         }
     }

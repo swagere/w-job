@@ -1,22 +1,21 @@
 package com.kve.worker.router.action;
 
-import com.kve.worker.router.HandlerRouter;
 import com.kve.common.model.RequestModel;
 import com.kve.common.model.ResponseModel;
+import com.kve.worker.router.HandlerRouter;
 import com.kve.worker.router.thread.TaskThread;
 
-public class RunAction implements ExecutorAction {
+public class StopAction implements ExecutorAction{
     @Override
     public ResponseModel execute(RequestModel requestModel) {
         String triggerKey = "TriggerId:" + requestModel.getTriggerId();
         TaskThread taskThread = HandlerRouter.loadJobThread(triggerKey);
 
         if (taskThread == null) {
-            taskThread = HandlerRouter.registerTaskThread(triggerKey);
+            return new ResponseModel(ResponseModel.FAIL, "任务未运行，无法停止");
         }
 
-        taskThread.pushTriggerQueue(requestModel);
+        taskThread.stopTask();
         return new ResponseModel(ResponseModel.SUCCESS, null);
     }
-
 }

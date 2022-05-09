@@ -73,9 +73,23 @@ public class QuartzScheduleUtil{
 
     public static void pauseJob(TaskInfo taskInfo) throws Exception {
         try {
+            //远程调用执行器
+//            RequestModel requestModel = new RequestModel();
+//            requestModel.setTimestamp(System.currentTimeMillis());
+//            requestModel.setAction(ActionEnum.PAUSE.getValue());
+//            requestModel.setTriggerId(taskInfo.getId());
+//
+//            ResponseModel responseModel = NetConnectionUtil.postHex(NetConnectionUtil.addressToUrl(taskInfo.getExecutorAddress()), requestModel);
+//
+//            if (responseModel.getStatus().equals(ResponseModel.FAIL)) {
+//                log.error("[ QuartzScheduleUtil ] >> pause a task exception; msg:{}", responseModel.getMsg());
+//                throw new WJobException(SysExceptionEnum.FAIL_SCHEDULER, responseModel.getMsg());
+//            }
+
             TriggerKey triggerKey = TriggerKey.triggerKey(taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup());
             scheduler.pauseTrigger(triggerKey);
+
             log.info("[ QuartzScheduleUtil ] >> pause a task end; triggerName:{},triggerGroup:{}", taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup());
         } catch (SchedulerException e) {
@@ -102,10 +116,24 @@ public class QuartzScheduleUtil{
 
     public static void stopJob(TaskInfo taskInfo) throws Exception {
         try {
+            //远程调用执行器
+//            RequestModel requestModel = new RequestModel();
+//            requestModel.setTimestamp(System.currentTimeMillis());
+//            requestModel.setAction(ActionEnum.STOP.getValue());
+//            requestModel.setTriggerId(taskInfo.getId());
+//
+//            ResponseModel responseModel = NetConnectionUtil.postHex(NetConnectionUtil.addressToUrl(taskInfo.getExecutorAddress()), requestModel);
+//
+//            if (responseModel.getStatus().equals(ResponseModel.FAIL)) {
+//                log.error("[ QuartzScheduleUtil ] >> stop a task exception; msg:{}", responseModel.getMsg());
+//                throw new WJobException(SysExceptionEnum.FAIL_SCHEDULER, responseModel.getMsg());
+//            }
+
             TriggerKey triggerKey = TriggerKey.triggerKey(taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup());
             scheduler.pauseTrigger(triggerKey);
             scheduler.unscheduleJob(triggerKey);
+
             log.info("[ QuartzScheduleUtil ] >> stop a task end; triggerName:{},triggerGroup:{}", taskInfo.getTriggerName(),
                     taskInfo.getTriggerGroup());
         } catch (SchedulerException e) {

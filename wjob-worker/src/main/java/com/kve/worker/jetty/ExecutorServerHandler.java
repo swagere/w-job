@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-public class ExecutorHandler extends AbstractHandler {
+public class ExecutorServerHandler extends AbstractHandler {
 
     @Override
     public void handle(String s, Request baseRequest, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {

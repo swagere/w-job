@@ -21,4 +21,6 @@ public class RequestModel implements Serializable {
 
     private String status;
     private String msg;
+
+    private String masterAddress;
 }

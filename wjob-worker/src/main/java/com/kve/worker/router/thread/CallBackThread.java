@@ -1,6 +1,8 @@
 package com.kve.worker.router.thread;
 
 import com.kve.common.model.RequestModel;
+import com.kve.common.model.ResponseModel;
+import com.kve.common.util.NetConnectionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -21,10 +23,16 @@ public class CallBackThread extends Thread {
             try {
                 RequestModel callBack = callBackQueue.take();
                 if (callBack != null) {
-                    // TODO: 2022/5/8 向调度中心发消息
+                    //向调度中心发消息
+                    try {
+                        ResponseModel responseModel = NetConnectionUtil.postHex(NetConnectionUtil.addressToUrl(callBack.getMasterAddress()), callBack);
+                        log.info("[ CallBackThread ] callback, RequestModel:{}, ResponseModel:{}", callBack, responseModel);
+                    } catch (Exception e) {
+                        log.info("[ CallBackThread ] callback exception:", e);
+                    }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("", e);
             }
         }
     }

@@ -4,6 +4,7 @@ import com.kve.common.config.ApplicationContextHelper;
 import com.kve.common.model.RequestModel;
 import com.kve.common.model.ResponseModel;
 import com.kve.common.util.ParamUtil;
+import com.kve.worker.model.ExecutorStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
@@ -18,7 +19,7 @@ public class TaskThread extends Thread {
     //存放运行请求的阻塞队列
     private LinkedBlockingQueue<RequestModel> triggerQueue;
 
-    private String action;
+    private int status;
 
     private String triggerKey;
 
@@ -37,9 +38,21 @@ public class TaskThread extends Thread {
         triggerQueue.add(requestModel);
     }
 
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public void stopTask() {
+        status = ExecutorStatusEnum.STOP.getValue();
+    }
+
+    public void pauseTask() {
+        status = ExecutorStatusEnum.PAUSE.getValue();
+    }
+
     @Override
     public void run() {
-        while (true) {
+        while (this.status == ExecutorStatusEnum.RUN.getValue()) {
             //开始调度
             try {
                 RequestModel requestModel = triggerQueue.poll(3L, TimeUnit.SECONDS);
@@ -73,10 +86,8 @@ public class TaskThread extends Thread {
                         if (method == null) {
                             throw new Exception("无法寻找到目标方法");
                         }
+                        log.info("[ TaskThread ] task run");
                         method.invoke(target, jobArs);
-
-                        requestModel.setStatus(ResponseModel.SUCCESS);
-                        requestModel.setMsg(null);
                     } catch (Exception e) {
                         requestModel.setStatus(ResponseModel.FAIL);
                         StringWriter out = new StringWriter();
@@ -84,14 +95,43 @@ public class TaskThread extends Thread {
                         requestModel.setMsg(out.toString());
                     }
 
-//                    callBackThread.pushCallBask(requestModel);
+                    //一次任务运行结束后回调
+                    if (status == ExecutorStatusEnum.RUN.getValue()) {
+                        requestModel.setStatus(ResponseModel.SUCCESS);
+                        requestModel.setMsg(null);
+                        callBackThread.pushCallBask(requestModel);
+                        log.info("[ TaskThread ] task end");
+                    }
+                    else if (status == ExecutorStatusEnum.PAUSE.getValue()) {
+                        requestModel.setStatus(ResponseModel.FAIL);
+                        requestModel.setMsg("任务暂停");
+                        callBackThread.pushCallBask(requestModel);
+                        log.info("[ TaskThread ] task pause");
+                    }
+                    else {
+                        requestModel.setStatus(ResponseModel.FAIL);
+                        requestModel.setMsg("任务被终止，停止调度运行");
+                        callBackThread.pushCallBask(requestModel);
+                        log.info("[ TaskThread ] task stop");
+                    }
+
                 }
             } catch (Exception e) {
-                log.error("[TaskThread] run exception:", e);
+                log.error("[ TaskThread ] run exception:", e);
             }
         }
 
-        //未开始调度，仍处于调度队列
+        //在任务调度队列中被终止
+        while (triggerQueue != null && triggerQueue.size() > 0) {
+            RequestModel requestModel = triggerQueue.poll();
+            if (requestModel != null) {
+                requestModel.setStatus(ResponseModel.FAIL);
+                requestModel.setMsg("任务尚未执行，在调度队列中被终止");
+                callBackThread.pushCallBask(requestModel);
+            }
+        }
+
+        log.info("[ TaskThread ] task stop, hashCode:{}", Thread.currentThread());
 
     }
 }

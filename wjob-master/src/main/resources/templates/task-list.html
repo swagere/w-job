@@ -69,7 +69,7 @@
                 </div>
                 <div class="layui-card-header">
                     <button class="layui-btn" id="addTaskButton" style="display: none"
-                            onclick="xadmin.open('添加任务',api.job.addHtml,800,400)"><i
+                            onclick="xadmin.open('添加任务',api.job.addHtml,800,450)"><i
                             class="layui-icon"></i>添加
                     </button>
                     &nbsp;&nbsp;
@@ -152,7 +152,7 @@
         table.on('tool(currentTableFilter)', function (obj) {
                 const data = obj.data;
                 if (obj.event === 'edit') {
-                    xadmin.open('编辑任务', api.job.detailHtml + '?id=' + data.id, 800, 400);
+                    xadmin.open('编辑任务', api.job.detailHtml + '?id=' + data.id, 800, 450);
                 } else if (obj.event === 'delete') {
                     layer.confirm('确定删除[' + data.triggerGroup + '.' + data.triggerName + ']？', {
                         btn: ['确定', '取消']
@@ -172,7 +172,9 @@
                         });
                     });
                 } else if (obj.event === 'copy') {
-                    xadmin.open('新增任务', api.job.addHtml + '?id=' + data.id, 800, 400);
+                    xadmin.open('新增任务', api.job.addHtml + '?id=' + data.id, 800, 450);
+                } else if (obj.event === 'schedule_log') {
+                    xadmin.open('调度日志', api.schedule_log.listPageHtml + '?id=' + data.id, 800, 450);
                 } else if (obj.event === 'start') {
                     //启动任务
                     AjaxRequest.aPost(api.job.start, JSON.stringify({id: data.id}), function (r) {
@@ -289,7 +291,7 @@
         const functionsKeys = getValueByCookie("COOKIE_USER_INFO", "functions");
         if (null !== functionsKeys && '' !== functionsKeys) {
             const functionsKeysArray = functionsKeys.split(",");
-            let operatePower = '<a title="日志" href="javascript:;" lay-event="logDetail"><i class="layui-icon">&#xe63c;</i></a>';
+            let operatePower = '<a title="日志" href="javascript:;" lay-event="schedule_log"><i class="layui-icon">&#xe63c;</i></a>';
             let hasAddPower = false;
             for (let j = 0; j < functionsKeysArray.length; j++) {
                 //添加

@@ -6,7 +6,9 @@ import com.kve.common.model.ResponseModel;
 import com.kve.common.util.NetConnectionUtil;
 import com.kve.common.config.ApplicationContextHelper;
 import com.kve.master.callback.CallBackServer;
+import com.kve.master.mapper.ScheduleLogMapper;
 import com.kve.master.mapper.TaskInfoMapper;
+import com.kve.master.model.bean.ScheduleLog;
 import com.kve.master.model.bean.TaskInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -15,6 +17,7 @@ import org.springframework.util.StringUtils;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,10 +28,12 @@ import java.util.List;
 public class TaskBean implements Job {
     private static TaskInfoMapper taskInfoMapper;
     private static CallBackServer callBackServer;
+    private static ScheduleLogMapper scheduleLogMapper;
 
     static {
-        taskInfoMapper = ApplicationContextHelper.getApplicationContext().getBean(TaskInfoMapper.class);
-        callBackServer = ApplicationContextHelper.getApplicationContext().getBean(CallBackServer.class);
+        taskInfoMapper = ApplicationContextHelper.getBean(TaskInfoMapper.class);
+        callBackServer = ApplicationContextHelper.getBean(CallBackServer.class);
+        scheduleLogMapper = ApplicationContextHelper.getBean(ScheduleLogMapper.class);
     }
 
     @Override
@@ -43,6 +48,12 @@ public class TaskBean implements Job {
         //方法参数
         String targetArguments = map.getString("targetArguments");
 
+        //调度日志处理
+        ScheduleLog scheduleLog = new ScheduleLog();
+        scheduleLog.setTriggerId(triggerId);
+        scheduleLogMapper.save(scheduleLog);
+
+        //远程调用参数构造
         RequestModel requestModel = new RequestModel();
         requestModel.setTargetClass(targetClass);
         requestModel.setTargetArguments(targetArguments);
@@ -50,9 +61,7 @@ public class TaskBean implements Job {
         requestModel.setAction(ActionEnum.RUN.getValue());
         requestModel.setTimestamp(System.currentTimeMillis());
         requestModel.setMasterAddress(callBackServer.getAddress());
-
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setId(triggerId);
+        requestModel.setScheduleLogId(scheduleLog.getId());  // TODO: 2022/5/10 根据id更新，id怎么获得？
 
         //本机地址
         List<String> addressList = new ArrayList<>();
@@ -61,15 +70,21 @@ public class TaskBean implements Job {
         //调用执行器，开始任务执行
         log.info("[ TaskBean ] run a task, request:{}", requestModel);
 
-        ResponseModel responseModel = executeRun(addressList, requestModel, taskInfo);
+        ResponseModel responseModel = executeRun(addressList, requestModel, scheduleLog);
 
         log.info("[ TaskBean ] run a task, response:{}", responseModel);
 
+        //调度日志更新
+        scheduleLog.setTriggerTime(new Date());
+        scheduleLog.setTriggerStatus(responseModel.getStatus());
+        scheduleLog.setTriggerMsg(responseModel.getMsg());
+        scheduleLogMapper.updateById(scheduleLog);
+
         //更新最后执行时间
-        updateAfterRun(taskInfo);
+        updateAfterRun(triggerId);
     }
 
-    private ResponseModel executeRun(List<String> addressList, RequestModel requestModel, TaskInfo taskInfo) {
+    private ResponseModel executeRun(List<String> addressList, RequestModel requestModel, ScheduleLog scheduleLog) {
         if (addressList==null || addressList.size() < 1) {
             ResponseModel result = new ResponseModel();
             result.setStatus(ResponseModel.FAIL);
@@ -78,9 +93,9 @@ public class TaskBean implements Job {
         } else if (addressList.size() == 1) {
             String address = addressList.get(0);
 
-            taskInfo.setExecutorAddress(address);
+            scheduleLog.setExecutorAddress(address);
             ResponseModel triggerCallback = NetConnectionUtil.postHex(NetConnectionUtil.addressToUrl(address), requestModel);
-            String failoverMessage = MessageFormat.format("executor running, [address] : {0}, [status] : {1}, [msg] : {2}", address, triggerCallback.getStatus(), triggerCallback.getMsg());
+            String failoverMessage = MessageFormat.format("executor running, <br>>>>[address] : {0}, <br>>>>[status] : {1}, <br>>>>[msg] : {2}.<br><hr>", address, triggerCallback.getStatus(), triggerCallback.getMsg());
             triggerCallback.setMsg(failoverMessage);
             return triggerCallback;
         } else {
@@ -96,14 +111,15 @@ public class TaskBean implements Job {
                     beatRequest.setTimestamp(System.currentTimeMillis());
                     beatRequest.setAction(ActionEnum.BEAT.getValue());
                     ResponseModel beatResponse = NetConnectionUtil.postHex(NetConnectionUtil.addressToUrl(address), beatRequest);
-                    failoverMessage += MessageFormat.format("BEAT running, [address]:{0}, [status]:{1}, [msg]:{2}.", address, beatResponse.getStatus(), beatRequest.getMsg());
+                    failoverMessage += MessageFormat.format("BEAT running, <br>>>>[address] : {0}, <br>>>>[status] : {1}, <br>>>>[msg] : {2}.<br><hr>", address, beatResponse.getStatus(), beatRequest.getMsg());
 
                     if (beatResponse.getStatus().equals(ResponseModel.SUCCESS)) {
-                        taskInfo.setExecutorAddress(address);
+                        scheduleLog.setExecutorAddress(address);
+
                         ResponseModel triggerCallback = NetConnectionUtil.postHex(NetConnectionUtil.addressToUrl(address), requestModel);
+                        failoverMessage += MessageFormat.format("Trigger running, <br>>>>[address] : {0}, <br>>>>[status]:{1}, <br>>>>[msg] : {2}.<br><hr>", address, triggerCallback.getStatus(), triggerCallback.getMsg());
                         triggerCallback.setMsg(failoverMessage);
                         return triggerCallback;
-
                     }
                 }
             }
@@ -116,16 +132,15 @@ public class TaskBean implements Job {
         }
     }
 
-    private void updateAfterRun(TaskInfo taskInfo) {
+    private void updateAfterRun(Integer triggerId) {
         try {
             //更新最后执行时间
             TaskInfo task = new TaskInfo();
-            task.setId(taskInfo.getId());
-            task.setExecutorAddress(taskInfo.getExecutorAddress());
+            task.setId(triggerId);
             task.setLastRunTimestamp(System.currentTimeMillis());
             taskInfoMapper.updateById(task);
         } catch (Exception e) {
-            log.error("[ TaskBean ] >> job updateAfterRun exception; TaskId:{}", taskInfo.getId(), e);
+            log.error("[ TaskBean ] >> job updateAfterRun exception; TaskId:{}", triggerId, e);
         }
     }
 }

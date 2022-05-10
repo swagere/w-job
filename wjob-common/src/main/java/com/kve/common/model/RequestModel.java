@@ -23,4 +23,6 @@ public class RequestModel implements Serializable {
     private String msg;
 
     private String masterAddress;
+    private Integer scheduleLogId;
+    private Long logDateTim;
 }

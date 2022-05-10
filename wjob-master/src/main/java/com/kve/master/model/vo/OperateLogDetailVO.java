@@ -1,17 +1,15 @@
-package com.kve.master.model.bean;
+package com.kve.master.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 任务日志记录表
+ * The table 任务日志记录表
  */
 @Data
-public class LogInfo implements Serializable {
-
-    private static final long serialVersionUID = 8780919295890565640L;
+public class OperateLogDetailVO {
 
     /**
      * ID
@@ -61,11 +59,8 @@ public class LogInfo implements Serializable {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
 
 }

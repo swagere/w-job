@@ -10,23 +10,23 @@ import java.util.List;
  * The table 任务日志记录表
  */
 @Data
-public class LogPageVO implements Serializable {
+public class OperateLogPageVO implements Serializable {
 
     private Integer total;
 
-    private List<LogItemVO> list;
+    private List<OperateLogItemVO> list;
 
-    public static LogPageVO initDefault() {
-        LogPageVO result = new LogPageVO();
+    public static OperateLogPageVO initDefault() {
+        OperateLogPageVO result = new OperateLogPageVO();
         result.setTotal(0);
         result.setList(new ArrayList<>(0));
         return result;
     }
 
-    public LogPageVO() {
+    public OperateLogPageVO() {
     }
 
-    public LogPageVO(Integer total, List<LogItemVO> list) {
+    public OperateLogPageVO(Integer total, List<OperateLogItemVO> list) {
         this.total = total;
         this.list = list;
     }

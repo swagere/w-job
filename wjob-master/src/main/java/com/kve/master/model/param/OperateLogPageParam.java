@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class LogPageParam implements Serializable {
+public class OperateLogPageParam implements Serializable {
 
 
     private static final long serialVersionUID = 8356494977556356252L;

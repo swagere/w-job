@@ -62,17 +62,4 @@ public class TaskInfo extends BaseEntity implements Serializable {
      */
     private String triggerGroup;
 
-    /**
-     * 执行器地址
-     */
-    private String executorAddress;
-
-
-//    public String getTriggerName() {
-//        return this.jobGroup + "." + this.jobName;
-//    }
-
-//    public String getQuartzJobName() {
-//        return this.getJobClass() + "." + this.getJobMethod();
-//    }
 }

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kve.master.mapper.ScheduleLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.kve.master.model.bean.ScheduleLog">
+        <result column="id" property="id" />
+        <result column="trigger_id" property="triggerId" />
+        <result column="executor_address" property="executorAddress" />
+        <result column="trigger_time" property="triggerTime" />
+        <result column="trigger_status" property="triggerStatus" />
+        <result column="trigger_msg" property="triggerMsg" />
+        <result column="execute_time" property="executeTime" />
+        <result column="execute_status" property="executeStatus" />
+        <result column="execute_msg" property="executeMsg" />
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+		id,
+		trigger_id,
+		executor_address,
+		trigger_time,
+		trigger_status,
+		trigger_msg,
+		execute_time,
+		execute_status,
+		execute_msg
+	</sql>
+
+    <insert id="save" parameterType="com.kve.master.model.bean.ScheduleLog" useGeneratedKeys="true" keyProperty="id" >
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO scheduled_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="triggerId != null">
+                trigger_id,
+            </if>
+            <if test="executorAddress != null">
+                executor_address,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="triggerId != null">
+                #{triggerId},
+            </if>
+            <if test="executorAddress != null">
+                #{executorAddress}
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.kve.master.model.bean.ScheduleLog">
+		UPDATE scheduled_log
+        <set>
+            <if test="triggerId!=null">
+                trigger_id=#{triggerId},
+            </if>
+            <if test="executorAddress!=null">
+                executor_address=#{executorAddress},
+            </if>
+            <if test="triggerTime!=null">
+                trigger_time=#{triggerTime},
+            </if>
+            <if test="triggerStatus!=null">
+                trigger_status=#{triggerStatus},
+            </if>
+            <if test="triggerMsg!=null">
+                trigger_msg=#{triggerMsg},
+            </if>
+            <if test="executeTime!=null">
+                execute_time=#{executeTime},
+            </if>
+            <if test="executeStatus!=null">
+                execute_status=#{executeStatus},
+            </if>
+            <if test="executeMsg!=null">
+                execute_msg=#{executeMsg},
+            </if>
+        </set>
+		WHERE id= #{id}
+	</update>
+
+    <select id="listPageByCondition" parameterType="com.kve.master.model.dto.ScheduleLogPageQueryDTO"
+            resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM scheduled_log
+        WHERE
+        trigger_id = #{triggerId}
+        LIMIT #{limit},#{pageSize}
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM scheduled_log
+        WHERE
+        id = #{id}
+    </select>
+
+    <delete id="deleteByTriggerId">
+		delete from scheduled_log
+		WHERE trigger_id = #{id}
+	</delete>
+
+</mapper>

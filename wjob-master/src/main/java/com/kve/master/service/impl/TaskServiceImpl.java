@@ -3,11 +3,12 @@ package com.kve.master.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.kve.common.util.ParamUtil;
-import com.kve.master.model.bean.LogInfo;
+import com.kve.master.mapper.ScheduleLogMapper;
+import com.kve.master.model.bean.OperateLog;
 import com.kve.master.model.bean.TaskInfo;
 import com.kve.master.model.base.BaseParam;
 import com.kve.master.model.dto.TaskPageQueryDTO;
-import com.kve.master.model.enums.LogTypeEnum;
+import com.kve.master.model.enums.OperateLogTypeEnum;
 import com.kve.master.model.enums.TaskStatusEnum;
 import com.kve.master.model.param.TaskPageParam;
 import com.kve.master.model.param.TaskParam;
@@ -16,7 +17,7 @@ import com.kve.master.model.vo.TaskPageVO;
 import com.kve.common.config.ApplicationContextHelper;
 import com.kve.master.config.exception.WJobException;
 import com.kve.master.config.response.SysExceptionEnum;
-import com.kve.master.mapper.LogInfoMapper;
+import com.kve.master.mapper.OperateLogMapper;
 import com.kve.master.service.TaskService;
 import com.kve.master.util.*;
 import com.kve.master.mapper.TaskInfoMapper;
@@ -46,7 +47,10 @@ public class TaskServiceImpl implements TaskService {
     private TaskInfoMapper taskInfoMapper;
 
     @Autowired
-    private LogInfoMapper logInfoMapper;
+    private OperateLogMapper operateLogMapper;
+
+    @Autowired
+    private ScheduleLogMapper scheduleLogMapper;
 
     /**
      * 新增任务
@@ -79,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
         taskInfoMapper.addTask(taskInfo);
 
         //异步添加操作日志
-        CompletableFuture.runAsync(() -> this.addLog(taskInfo.getId(), LogTypeEnum.CREATE, taskParam));
+        CompletableFuture.runAsync(() -> this.addLog(taskInfo.getId(), OperateLogTypeEnum.CREATE, taskParam));
 
 
 //        log.info("TaskService>> saveTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
@@ -138,9 +142,11 @@ public class TaskServiceImpl implements TaskService {
         }
 
         taskInfoMapper.removeById(taskInfo.getId(), taskInfo.getUpdateBy(), taskInfo.getUpdateName());
+        scheduleLogMapper.deleteByTriggerId(taskInfo.getId());
+
 
         //异步添加操作日志
-        CompletableFuture.runAsync(() -> this.addLog(taskParam.getId(), LogTypeEnum.DELETE, taskParam));
+        CompletableFuture.runAsync(() -> this.addLog(taskParam.getId(), OperateLogTypeEnum.DELETE, taskParam));
 
 
 //        log.info("TaskService>> deleteTask end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
@@ -218,7 +224,7 @@ public class TaskServiceImpl implements TaskService {
         taskInfoMapper.updateById(taskInfo);
 
         //异步添加操作日志
-        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.OPEN, taskParam));
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), OperateLogTypeEnum.OPEN, taskParam));
 
 
 //        log.info("TaskService >> startJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
@@ -250,7 +256,7 @@ public class TaskServiceImpl implements TaskService {
         taskInfoMapper.updateById(taskInfo);
 
         //异步添加操作日志
-        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.CLOSE, taskParam));
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), OperateLogTypeEnum.CLOSE, taskParam));
 
 
 //        log.info("TaskService >> pauseJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
@@ -284,7 +290,7 @@ public class TaskServiceImpl implements TaskService {
         taskInfoMapper.updateById(taskInfo);
 
         //异步添加操作日志
-        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.CLOSE, taskParam));
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), OperateLogTypeEnum.CLOSE, taskParam));
 
 
 //        log.info("TaskService >> resumeJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
@@ -309,7 +315,7 @@ public class TaskServiceImpl implements TaskService {
         taskInfoMapper.updateById(taskInfo);
 
         //异步添加操作日志
-        CompletableFuture.runAsync(() -> this.addLog(task.getId(), LogTypeEnum.CLOSE, taskParam));
+        CompletableFuture.runAsync(() -> this.addLog(task.getId(), OperateLogTypeEnum.CLOSE, taskParam));
 
 
 //        log.info("TaskService >> stopJob end; id:{},operate:{}", taskParam.getId(), taskParam.getOperateName());
@@ -318,13 +324,13 @@ public class TaskServiceImpl implements TaskService {
     /**
      * 添加日志
      */
-    private void addLog(Integer jobId, LogTypeEnum logTypeEnum, BaseParam operateBO) {
+    private void addLog(Integer jobId, OperateLogTypeEnum operateLogTypeEnum, BaseParam operateBO) {
         try {
             TaskInfo scheduledQuartzJobInfo = taskInfoMapper.findById(jobId);
             if (null == scheduledQuartzJobInfo) {
                 return;
             }
-            this.doAddLog(jobId, logTypeEnum, operateBO, JSON.toJSONString(scheduledQuartzJobInfo));
+            this.doAddLog(jobId, operateLogTypeEnum, operateBO, JSON.toJSONString(scheduledQuartzJobInfo));
         } catch (Exception e) {
 //            log.error("TaskServiceImpl >> aync addLog add log exception", e);
         }
@@ -342,7 +348,7 @@ public class TaskServiceImpl implements TaskService {
 
             Map<String, Object> allFieldValues = CompareObjectUtil.getAllFieldValues(oldJobInfo, newJobInfo, TaskInfo.class);
             //记录操作日志
-            this.doAddLog(jobId, LogTypeEnum.UPDATE, operateBO, JSON.toJSONString(allFieldValues));
+            this.doAddLog(jobId, OperateLogTypeEnum.UPDATE, operateBO, JSON.toJSONString(allFieldValues));
         } catch (Exception e) {
 //            log.error("TaskServiceImpl >> aync addLog  add log exception", e);
         }
@@ -352,11 +358,11 @@ public class TaskServiceImpl implements TaskService {
     /**
      * 添加日志
      */
-    private void doAddLog(Integer jobId, LogTypeEnum logTypeEnum, BaseParam baseParam, String content) {
-        LogInfo jobLog = new LogInfo();
+    private void doAddLog(Integer jobId, OperateLogTypeEnum operateLogTypeEnum, BaseParam baseParam, String content) {
+        OperateLog jobLog = new OperateLog();
         jobLog.setJobId(jobId);
-        jobLog.setLogType(logTypeEnum.getType());
-        jobLog.setLogDesc(logTypeEnum.getDesc());
+        jobLog.setLogType(operateLogTypeEnum.getType());
+        jobLog.setLogDesc(operateLogTypeEnum.getDesc());
         jobLog.setContent(content == null ? "" : content);
         jobLog.setOperateId(baseParam.getOperateBy());
         jobLog.setOperateName(baseParam.getOperateName());
@@ -373,7 +379,7 @@ public class TaskServiceImpl implements TaskService {
             remarks = remarks + IpAddressUtil.SEPARATE + baseParam.getOs();
         }
         jobLog.setRemarks(remarks);
-        logInfoMapper.addLog(jobLog);
+        operateLogMapper.addLog(jobLog);
     }
 
     /**

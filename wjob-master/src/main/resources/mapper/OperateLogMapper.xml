@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.kve.master.mapper.LogInfoMapper">
+<mapper namespace="com.kve.master.mapper.OperateLogMapper">
 
-    <resultMap id="BaseResultMap" type="com.kve.master.model.bean.LogInfo">
+    <resultMap id="BaseResultMap" type="com.kve.master.model.bean.OperateLog">
         <id column="id" property="id" jdbcType="INTEGER" javaType="Integer"/>
         <result column="content" property="content" jdbcType="VARCHAR" javaType="String"/>
         <result column="log_desc" property="logDesc" jdbcType="VARCHAR" javaType="String"/>
@@ -16,7 +16,7 @@
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
     </resultMap>
 
-    <resultMap id="PageListResultMap" type="com.kve.master.model.vo.LogItemVO">
+    <resultMap id="PageListResultMap" type="com.kve.master.model.vo.OperateLogItemVO">
         <id column="id" property="id" jdbcType="INTEGER" javaType="Integer"/>
         <result column="log_desc" property="logDesc" jdbcType="VARCHAR" javaType="String"/>
         <result column="remarks" property="remarks" jdbcType="VARCHAR" javaType="String"/>
@@ -43,7 +43,7 @@
             SELECT
             LAST_INSERT_ID()
         </selectKey>
-        INSERT INTO scheduled_log(
+        INSERT INTO scheduled_operate_log(
         id,
         job_id,
         log_type,
@@ -70,7 +70,7 @@
     <select id="getById" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
-        FROM scheduled_log
+        FROM scheduled_operate_log
         WHERE
         id = #{id,jdbcType=INTEGER}
     </select>
@@ -78,12 +78,12 @@
     <select id="getByJobId" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
-        FROM scheduled_log
+        FROM scheduled_operate_log
         WHERE
         job_id = #{jobId,jdbcType=INTEGER}
     </select>
 
-    <select id="listPageByCondition" parameterType="com.kve.master.model.dto.LogPageQueryDTO"
+    <select id="listPageByCondition" parameterType="com.kve.master.model.dto.OperateLogPageQueryDTO"
             resultMap="PageListResultMap">
         SELECT
         a.id,
@@ -99,7 +99,7 @@
         a.log_type,
         a.create_time,
         a.update_time
-        FROM scheduled_log a
+        FROM scheduled_operate_log a
         INNER JOIN scheduled_task b on a.job_id=b.id
         WHERE b.del_flag = 0
         <if test="jobId !=null">

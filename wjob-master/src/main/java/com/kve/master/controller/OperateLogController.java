@@ -1,11 +1,11 @@
 package com.kve.master.controller;
 
 
-import com.kve.master.model.param.LogDetailParam;
-import com.kve.master.model.param.LogPageParam;
-import com.kve.master.model.vo.LogPageVO;
+import com.kve.master.model.param.OperateLogDetailParam;
+import com.kve.master.model.param.OperateLogPageParam;
+import com.kve.master.model.vo.OperateLogPageVO;
 import com.kve.master.config.response.AjaxResponse;
-import com.kve.master.service.LogService;
+import com.kve.master.service.OperateLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/job-admin/job-log")
-public class LogInfoController {
+public class OperateLogController {
 
     @Autowired
-    private LogService logService;
+    private OperateLogService operateLogService;
 
     /**
-     * 分页任务列表
+     * 分页日志列表
      */
     @RequestMapping("/listPage")
-    public AjaxResponse listPageJob(LogPageParam logPageParam) {
-        LogPageVO result = logService.listPageLog(logPageParam);
+    public AjaxResponse listPage(OperateLogPageParam operateLogPageParam) {
+        OperateLogPageVO result = operateLogService.listPageLog(operateLogPageParam);
         AjaxResponse response = AjaxResponse.success(result.getList());
         response.setCount(result.getTotal());
         return response;
@@ -36,8 +36,8 @@ public class LogInfoController {
      * 日志详情
      */
     @RequestMapping("/getLogDetail")
-    public AjaxResponse getJobDetail(@RequestBody LogDetailParam logDetailParam) {
-        return AjaxResponse.success(logService.getLogDetail(logDetailParam));
+    public AjaxResponse getJobDetail(@RequestBody OperateLogDetailParam operateLogDetailParam) {
+        return AjaxResponse.success(operateLogService.getLogDetail(operateLogDetailParam));
     }
 
 }

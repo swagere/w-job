@@ -12,14 +12,13 @@ import java.util.Date;
  */
 @Builder
 @ToString
-public class LogPageQueryDTO implements Serializable {
+public class OperateLogPageQueryDTO implements Serializable {
 
     private static final long serialVersionUID = -2794336177217543563L;
 
     private Integer limit;
     private Integer pageSize;
 
-    private String projectKey;
     private Integer logType;
     private Integer jobId;
     private String triggerNameLike;

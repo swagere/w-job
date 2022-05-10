@@ -3,7 +3,7 @@ package com.kve.master.model.enums;
 /**
  * 日志类型枚举
  */
-public enum LogTypeEnum {
+public enum OperateLogTypeEnum {
 
     /**
      * 日志类型 1-新增 2-修改 3-启动 4-关闭 5-删除
@@ -18,7 +18,7 @@ public enum LogTypeEnum {
     private Integer type;
     private String desc;
 
-    LogTypeEnum(Integer type, String desc) {
+    OperateLogTypeEnum(Integer type, String desc) {
         this.type = type;
         this.desc = desc;
     }

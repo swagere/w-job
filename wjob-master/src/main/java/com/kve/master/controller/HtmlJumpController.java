@@ -115,6 +115,11 @@ public class HtmlJumpController {
         return new ModelAndView("task-log-detail");
     }
 
+    @RequestMapping("/page/schedule-log-list")
+    public ModelAndView scheduleLogDetail() {
+        return new ModelAndView("schedule-log-list");
+    }
+
     /**
      * 平台名称
      *

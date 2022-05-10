@@ -133,9 +133,9 @@
         table.on('tool(currentTableFilter)', function (obj) {
                 const data = obj.data;
                 if (obj.event === 'edit') {
-                    xadmin.open('编辑人员', api.user.update_detail_html + '?id=' + data.id, 800, 400);
+                    xadmin.open('编辑人员', api.user.update_detail_html + '?id=' + data.id, 800, 450);
                 } else if (obj.event === 'editPwd') {
-                    xadmin.open('修改密码', api.user.update_pwd_html + '?id=' + data.id, 400, 400);
+                    xadmin.open('修改密码', api.user.update_pwd_html + '?id=' + data.id, 400, 450);
                 } else if (obj.event === 'editPower') {
                     xadmin.open('修改权限', api.user.update_power_html + '?id=' + data.id, 800, 350);
                 } else if (obj.event === 'delete') {

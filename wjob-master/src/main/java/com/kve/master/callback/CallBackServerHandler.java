@@ -32,12 +32,13 @@ public class CallBackServerHandler extends AbstractHandler {
         RequestModel requestModel = NetConnectionUtil.parseHexJson2Obj(requestHex, RequestModel.class);
 
         ResponseModel responseModel = null;
-
-        //日志处理
         ScheduleLog log = scheduleLogMapper.findById(requestModel.getScheduleLogId());
 
+        System.out.println(requestModel);
+        System.out.println(log);
+
         if (log != null) {
-            if (requestModel.getStatus().equals(ResponseModel.SUCCESS) && log.getExecuteStatus().equals(ResponseModel.SUCCESS)) {
+            if (requestModel.getStatus().equals(ResponseModel.SUCCESS) && !ResponseModel.SUCCESS.equals(log.getExecuteStatus())) {
                 //启动子任务
             }
 
@@ -52,5 +53,14 @@ public class CallBackServerHandler extends AbstractHandler {
         } else {
             responseModel = new ResponseModel(ResponseModel.FAIL, "log not found");
         }
+
+        // format response model to hex-json
+        String responseHex = NetConnectionUtil.formatObj2HexJson(responseModel);
+
+        // response
+        response.setContentType("text/html;charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        baseRequest.setHandled(true);
+        response.getWriter().println(responseHex);
     }
 }

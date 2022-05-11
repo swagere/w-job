@@ -4,8 +4,10 @@ import com.kve.common.config.ApplicationContextHelper;
 import com.kve.common.model.RequestModel;
 import com.kve.common.model.ResponseModel;
 import com.kve.common.util.ParamUtil;
+import com.kve.worker.log.FileAppender;
 import com.kve.worker.model.ExecutorStatusEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.springframework.util.StringUtils;
 
 import java.io.PrintWriter;
@@ -18,6 +20,8 @@ import java.util.concurrent.TimeUnit;
 public class TaskThread extends Thread {
     //存放运行请求的阻塞队列
     private LinkedBlockingQueue<RequestModel> triggerQueue;
+    private ConcurrentHashSet<Integer> triggerLogIdSet;		// avoid repeat trigger for the same TRIGGER_LOG_ID
+
 
     private int status;
 
@@ -32,10 +36,16 @@ public class TaskThread extends Thread {
     public TaskThread(String triggerKey) {
         this.triggerKey = triggerKey;
         this.triggerQueue = new LinkedBlockingQueue<RequestModel>();
+        this.triggerLogIdSet = new ConcurrentHashSet<Integer>();
     }
 
     public void pushTriggerQueue(RequestModel requestModel) {
+        if (triggerLogIdSet.contains(requestModel.getScheduleLogId())) {
+            log.info("[ TaskThread ] add repeat, scheduleId:{}", requestModel.getScheduleLogId());
+            return;
+        }
         triggerQueue.add(requestModel);
+        triggerLogIdSet.add(requestModel.getScheduleLogId());
     }
 
     public void setStatus(int status) {
@@ -58,10 +68,12 @@ public class TaskThread extends Thread {
                 RequestModel requestModel = triggerQueue.poll(3L, TimeUnit.SECONDS);
                 if (requestModel != null) {
                     //-----日志处理
-
+                    triggerLogIdSet.remove(requestModel.getScheduleLogId());
 
                     //-----任务执行
                     try {
+                        FileAppender.contextHolder.set(String.valueOf(requestModel.getScheduleLogId()));
+
                         String targetClass = requestModel.getTargetClass();
                         String targetMethod = requestModel.getTargetMethod();
                         String targetArguments = requestModel.getTargetArguments();
@@ -93,12 +105,13 @@ public class TaskThread extends Thread {
                         StringWriter out = new StringWriter();
                         e.printStackTrace(new PrintWriter(out));
                         requestModel.setMsg(out.toString());
+                        callBackThread.pushCallBask(requestModel);
                     }
 
                     //一次任务运行结束后回调
                     if (status == ExecutorStatusEnum.RUN.getValue()) {
                         requestModel.setStatus(ResponseModel.SUCCESS);
-                        requestModel.setMsg(null);
+                        requestModel.setMsg("任务运行成功");
                         callBackThread.pushCallBask(requestModel);
                         log.info("[ TaskThread ] task end");
                     }
@@ -108,7 +121,7 @@ public class TaskThread extends Thread {
                         callBackThread.pushCallBask(requestModel);
                         log.info("[ TaskThread ] task pause");
                     }
-                    else {
+                    else if (status == ExecutorStatusEnum.STOP.getValue()){
                         requestModel.setStatus(ResponseModel.FAIL);
                         requestModel.setMsg("任务被终止，停止调度运行");
                         callBackThread.pushCallBask(requestModel);

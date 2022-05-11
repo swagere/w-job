@@ -61,7 +61,7 @@ public class TaskBean implements Job {
         requestModel.setAction(ActionEnum.RUN.getValue());
         requestModel.setTimestamp(System.currentTimeMillis());
         requestModel.setMasterAddress(callBackServer.getAddress());
-        requestModel.setScheduleLogId(scheduleLog.getId());  // TODO: 2022/5/10 根据id更新，id怎么获得？
+        requestModel.setScheduleLogId(scheduleLog.getId());
 
         //本机地址
         List<String> addressList = new ArrayList<>();

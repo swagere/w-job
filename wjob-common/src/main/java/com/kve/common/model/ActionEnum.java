@@ -4,7 +4,8 @@ public enum ActionEnum {
     RUN("RUN", "启动/恢复"),
     PAUSE("PAUSE", "暂停"),
     STOP("STOP", "停止"),
-    BEAT("BEAT", "心跳检测")
+    BEAT("BEAT", "心跳检测"),
+    LOG("LOG", "执行日志查询")
     ;
 
     private String value;

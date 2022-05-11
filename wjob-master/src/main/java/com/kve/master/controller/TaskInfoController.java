@@ -21,11 +21,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 
-/**
- * @author: hujing39
- * @date: 2022-03-07
- */
-
 @RestController
 @RequestMapping("/job-admin/task")
 public class TaskInfoController {

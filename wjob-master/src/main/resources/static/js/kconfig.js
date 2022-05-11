@@ -62,8 +62,7 @@ const api = {
     schedule_log: {
         listPageHtml:project_path_prefix + '/page/schedule-log-list',
         listPage: project_path_prefix + '/schedule-log/listPage',
-        detailHtml: project_path_prefix + '/page/schedule-log-detail',
-        detail: project_path_prefix + '/schedule-log/getLogDetail',
+        detail: project_path_prefix + '/schedule-log/logDetail',
     }
 };
 

@@ -100,8 +100,8 @@
                     {field: 'triggerMsg', title: '调度信息', width: 80, toolbar:'#TriggerMsgDetail'},
                     {field: 'executeTime', title: '执行时间', width: 150},
                     {field: 'executeStatus', title: '执行结果', width: 100},
-                    {field: 'executeMsg', title: '执行信息', width: 80, toolbar:"ExecutorMsgDetail"},
-                    {field: '', title: '执行日志', width: 60, templet: '#currentTableBar', fixed: 'right'}
+                    {field: 'executeMsg', title: '执行信息', width: 80, toolbar:'#ExecutorMsgDetail'},
+                    {field: '', title: '执行日志', width: 80, templet: '#currentTableBar', fixed: 'right'}
                 ]
             ],
             limits: [10, 20, 30, 50, 100],
@@ -111,11 +111,35 @@
         table.on('tool(currentTableFilter)', function (obj) {
             const data = obj.data;
             if (obj.event === 'triggerMsgDetail') {
-                layer.alert(data.triggerMsg);
+                if (data.triggerMsg === null) {
+                    layer.alert("未获取到调度信息", {title: '调度信息'});
+                }
+                else {
+                    layer.alert(data.triggerMsg, {title: '调度信息'});
+                }
+
             } else if (obj.event === 'executorMsgDetail') {
-                layer.alert(data.executeMsg);
+                if (data.executeMsg === null) {
+                    layer.alert("未获取到执行信息", {title: '执行信息'});
+                }
+                else {
+                    layer.alert(data.executeMsg, {title: '执行信息'});
+                }
+
             } else if (obj.event === 'showDetail') {
-                layer.alert("查看详细执行日志");
+                AjaxRequest.aPost(api.schedule_log.detail, JSON.stringify({id: data.id}), function (r) {
+                    if (r.code === 0) {
+                        if (r.data === null) {
+                            layer.alert("未获取到具体执行日志", {title: '执行日志'});
+                        }
+                        else {
+                            layer.alert(r.data, {area:['600px', '400px'], title:'执行日志'});
+                        }
+                    }
+                    else {
+                        layer.alert(r.msg, {title: '执行日志'});
+                    }
+                })
             }
         })
     });

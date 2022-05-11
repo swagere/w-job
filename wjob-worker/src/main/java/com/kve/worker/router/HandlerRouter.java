@@ -33,7 +33,8 @@ public class HandlerRouter {
 		RUN(new RunAction()),
 		PAUSE(new PauseAction()),
 		STOP(new StopAction()),
-		BEAT(new BeatAction())
+		BEAT(new BeatAction()),
+		LOG(new LogAction())
 		;
 
 		private ExecutorAction action;
